@@ -28,46 +28,61 @@
         <p>Akhir dari Kalkulator Anda.</p>
     </div>
 
-    <script>
-        let lastSentHeight = 0; 
+  <script>
+    let lastSentHeight = 0; 
+    let initialLoadSent = false; // FLAG PENTING: Untuk memastikan pemuatan awal hanya terjadi sekali
 
-        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
-        function getAccurateHeight() {
-            // Gunakan Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
-            return Math.round(
-                Math.max(
-                    document.body.scrollHeight, 
-                    document.documentElement.scrollHeight, 
-                    document.body.offsetHeight, 
-                    document.documentElement.offsetHeight,
-                    document.body.clientHeight, 
-                    document.documentElement.clientHeight
-                )
-            );
+    // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
+    function getAccurateHeight() {
+        // Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
+        return Math.round(
+            Math.max(
+                document.body.scrollHeight, 
+                document.documentElement.scrollHeight, 
+                document.body.offsetHeight, 
+                document.documentElement.offsetHeight,
+                document.body.clientHeight, 
+                document.documentElement.clientHeight
+            )
+        );
+    }
+
+    function sendHeight() {
+        const currentHeight = getAccurateHeight();
+        
+        // PENTING: Hanya kirim pesan jika tingginya berubah dari terakhir kali dikirim
+        if (currentHeight === lastSentHeight) {
+            return; 
         }
 
-        function sendHeight() {
-            const currentHeight = getAccurateHeight();
-            
-            // HANYA KIRIM JIKA TINGGI BERUBAH
-            if (currentHeight === lastSentHeight) {
-                return; 
-            }
+        // Kirim tinggi ke Parent
+        window.parent.postMessage({
+            height: currentHeight,
+            frameId: 'jastip-calculator-widget' 
+        }, '*');
 
-            // Kirim tinggi ke Parent
-            window.parent.postMessage({
-                height: currentHeight,
-                frameId: 'jastip-calculator-widget' 
-            }, '*');
+        lastSentHeight = currentHeight; // Perbarui tinggi terakhir yang dikirim
+        // console.log('Tinggi Kalkulator Jastip dikirim: ' + currentHeight + 'px');
+    }
 
-            lastSentHeight = currentHeight; 
-            console.log('Tinggi Kalkulator Jastip dikirim: ' + currentHeight + 'px');
-        }
+    // --- KONTROL PEMUATAN AWAL ---
 
-        // Event listener yang stabil (tidak ada setInterval atau setTimeout berulang)
-        window.addEventListener('load', sendHeight);
-        window.addEventListener('resize', sendHeight);
-        setTimeout(sendHeight, 500); // Jaring pengaman sekali jalan
-    </script>
+    function initialSend() {
+        if (initialLoadSent) return; // Hentikan jika sudah pernah dipanggil
+        sendHeight();
+        initialLoadSent = true;
+    }
+
+    // 1. Panggil saat semua aset halaman dimuat
+    window.addEventListener('load', initialSend);
+
+    // 2. Panggil saat ada perubahan ukuran jendela (perlu dipertahankan)
+    window.addEventListener('resize', sendHeight);
+    
+    // 3. Jaring pengaman (berjalan sekali)
+    // Panggil setelah jeda singkat untuk memastikan semua konten dinamis sudah dimuat
+    setTimeout(initialSend, 500); 
+    
+</script>
 </body>
 </html>
