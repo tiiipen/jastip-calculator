@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Widget Iframe</title>
+    <style>
+        /* CSS Penting untuk mencegah spillover */
+        body { margin: 0; padding: 0; }
+        .content { 
+            /* Tambahkan konten yang panjang dan dinamis */
+            background-color: #e0f7fa; 
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h2>Halo, Saya Widget Anda!</h2>
+        <p>Saya adalah konten yang tinggi saya bisa berubah-ubah. Tujuan saya adalah mengirim tinggi saya ke halaman induk.</p>
+        <div style="height: 500px; background-color: #b2ebf2; margin-top: 10px;">
+            Blok Konten Panjang
+        </div>
+        <p>Akhir dari konten saya.</p>
+    </div>
+
+    <script>
+        function sendHeight() {
+            // Gunakan salah satu metode pengukuran akurat
+            const contentHeight = document.body.scrollHeight;
+
+            // Kirim tinggi ke Parent
+            // Di lingkungan CodePen/JSFiddle, Origin berbeda, jadi ini aman
+            window.parent.postMessage({
+                height: contentHeight,
+                frameId: 'my-test-widget' // Identifier
+            }, '*');
+            console.log('Tinggi dikirim: ' + contentHeight + 'px');
+        }
+
+        // Panggil saat dimuat dan saat ada perubahan ukuran
+        window.onload = sendHeight;
+        window.addEventListener('resize', sendHeight);
+        
+        // Timeout untuk memastikan semua aset telah dimuat (jika ada gambar dll.)
+        setTimeout(sendHeight, 500); 
+    </script>
+</body>
+</html>
