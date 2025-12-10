@@ -1,32 +1,79 @@
-<iframe 
-    id="jastip-calculator-widget" 
-    src="https://tiiipen.github.io/jastip-calculator/" 
-    frameborder="0" 
-    scrolling="no" style="width: 100%; border: none; min-height: 50px;"> </iframe>
-
-<script>
-    // 2. Mendengarkan pesan dari jendela lain
-    window.addEventListener('message', function(event) {
-        
-        // Opsional tapi **SANGAT DISARANKAN** untuk keamanan:
-        // Cek asal (origin) pengirim pesan harus dari GitHub Pages Anda
-        // const trustedOrigin = 'https://tiiipen.github.io';
-        // if (event.origin !== trustedOrigin) {
-        //     console.warn('Pesan diblokir dari asal tidak terpercaya:', event.origin);
-        //     return; 
-        // }
-
-        // 3. Cek apakah data berisi tinggi dan ID yang benar
-        if (event.data && event.data.height && event.data.frameId === 'jastip-calculator-widget') {
-            
-            const iframe = document.getElementById(event.data.frameId);
-            if (iframe) {
-                // 4. Set tinggi iframe
-                // Tambahkan sedikit piksel (misalnya 10px) sebagai buffer untuk memastikan tidak ada scrollbar
-                const newHeight = event.data.height + 10; 
-                iframe.style.height = newHeight + 'px';
-                console.log('Tinggi iframe disesuaikan menjadi: ' + newHeight + 'px');
-            }
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Widget Iframe (Pengirim Tinggi)</title>
+    <style>
+        /* CSS Penting: Hapus margin/padding body untuk pengukuran yang akurat dan hindari spillover */
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
         }
-    }, false); // 'false' adalah nilai default, tapi baik untuk kejelasan
-</script>
+        
+        /* Konten Placeholder Anda - Ganti dengan CSS Kalkulator Anda */
+        .content { 
+            background-color: #e0f7fa; 
+            padding: 20px;
+            /* Tambahkan style lain dari kalkulator Anda */
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="content">
+        <h2>Konten Kalkulator Jastip Anda Disini</h2>
+        <p>Tinggi konten ini akan diukur dan dikirim ke halaman induk.</p>
+        <div style="height: 500px; background-color: #b2ebf2; margin-top: 10px;">
+            Blok Konten Panjang untuk simulasi.
+        </div>
+        <p>Akhir dari Kalkulator Anda.</p>
+    </div>
+
+    <script>
+        // Variabel untuk melacak tinggi yang terakhir dikirim
+        let lastSentHeight = 0; 
+
+        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat
+        function getAccurateHeight() {
+            // Mengukur tinggi maksimum dari berbagai properti untuk kompatibilitas dan akurasi
+            return Math.max(
+                document.body.scrollHeight, 
+                document.documentElement.scrollHeight, 
+                document.body.offsetHeight, 
+                document.documentElement.offsetHeight,
+                document.body.clientHeight, 
+                document.documentElement.clientHeight
+            );
+        }
+
+        function sendHeight() {
+            const currentHeight = getAccurateHeight();
+            
+            // PENTING: Hanya kirim pesan jika tingginya berubah dari terakhir kali dikirim
+            if (currentHeight === lastSentHeight) {
+                // console.log('Tinggi tidak berubah, pengiriman dilewati.');
+                return; 
+            }
+
+            // Kirim tinggi ke Parent
+            window.parent.postMessage({
+                height: currentHeight,
+                frameId: 'jastip-calculator-widget' // Pastikan ID ini sama dengan ID iframe di halaman induk
+            }, '*');
+
+            lastSentHeight = currentHeight; // Perbarui tinggi terakhir yang dikirim
+            console.log('Tinggi Kalkulator Jastip dikirim: ' + currentHeight + 'px');
+        }
+
+        // 1. Panggil saat semua aset halaman dimuat (Paling andal)
+        window.addEventListener('load', sendHeight);
+
+        // 2. Panggil saat ada perubahan ukuran jendela (misal, rotasi perangkat)
+        window.addEventListener('resize', sendHeight);
+        
+        // 3. Jaring pengaman: Panggil setelah jeda pendek, lalu HENTIKAN perulangan
+        // Timeout ini hanya berjalan sekali (tidak ada setInterval yang menyebabkan looping tak berujung)
+        setTimeout(sendHeight, 500); 
+    </script>
+</body>
+</html>
