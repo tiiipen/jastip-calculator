@@ -1,66 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Widget Iframe (Pengirim Tinggi)</title>
-    <style>
-        /* CSS Penting untuk mencegah spillover dan scrollbar ganda */
-        html, body { 
-            margin: 0; 
-            padding: 0;
-            overflow-x: hidden; /* Mencegah scroll horizontal */
-        }
-        .content { 
-            background-color: #e0f7fa; 
-            padding: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="content">
-        <h2>Halo, Saya Widget Anda!</h2>
-        <p>Saya adalah konten yang tinggi saya bisa berubah-ubah. Tujuan saya adalah mengirim tinggi saya ke halaman induk.</p>
-        <div style="height: 500px; background-color: #b2ebf2; margin-top: 10px;">
-            Blok Konten Panjang
-        </div>
-        <p>Akhir dari konten saya.</p>
-    </div>
+<iframe 
+    id="jastip-calculator-widget" 
+    src="https://tiiipen.github.io/jastip-calculator/" 
+    frameborder="0" 
+    scrolling="no" style="width: 100%; border: none; min-height: 50px;"> </iframe>
 
-    <script>
-        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat
-        function getAccurateHeight() {
-            // Mengukur tinggi maksimum dari berbagai properti untuk kompatibilitas dan akurasi
-            return Math.max(
-                document.body.scrollHeight, 
-                document.documentElement.scrollHeight, 
-                document.body.offsetHeight, 
-                document.documentElement.offsetHeight,
-                document.body.clientHeight, 
-                document.documentElement.clientHeight
-            );
-        }
-
-        function sendHeight() {
-            // Gunakan fungsi pengukuran yang lebih akurat
-            const contentHeight = getAccurateHeight();
-
-            // Kirim tinggi ke Parent
-            // Gunakan identifier 'jastip-calculator-widget' atau identifier unik lainnya
-            window.parent.postMessage({
-                height: contentHeight,
-                frameId: 'jastip-calculator-widget' // Ganti dari 'my-test-widget' ke nama spesifik
-            }, '*');
-            console.log('Tinggi dikirim: ' + contentHeight + 'px');
-        }
-
-        // 1. Panggil saat semua aset halaman dimuat (lebih baik daripada window.onload)
-        window.addEventListener('load', sendHeight);
-
-        // 2. Panggil saat ada perubahan ukuran jendela (misal, rotasi perangkat)
-        window.addEventListener('resize', sendHeight);
+<script>
+    // 2. Mendengarkan pesan dari jendela lain
+    window.addEventListener('message', function(event) {
         
-        // 3. Jaring pengaman: Panggil setelah jeda pendek
-        // Berguna jika ada script eksternal atau gambar yang dimuat setelah event 'load'
-        setTimeout(sendHeight, 500); 
-    </script>
-</body>
-</html>
+        // Opsional tapi **SANGAT DISARANKAN** untuk keamanan:
+        // Cek asal (origin) pengirim pesan harus dari GitHub Pages Anda
+        // const trustedOrigin = 'https://tiiipen.github.io';
+        // if (event.origin !== trustedOrigin) {
+        //     console.warn('Pesan diblokir dari asal tidak terpercaya:', event.origin);
+        //     return; 
+        // }
+
+        // 3. Cek apakah data berisi tinggi dan ID yang benar
+        if (event.data && event.data.height && event.data.frameId === 'jastip-calculator-widget') {
+            
+            const iframe = document.getElementById(event.data.frameId);
+            if (iframe) {
+                // 4. Set tinggi iframe
+                // Tambahkan sedikit piksel (misalnya 10px) sebagai buffer untuk memastikan tidak ada scrollbar
+                const newHeight = event.data.height + 10; 
+                iframe.style.height = newHeight + 'px';
+                console.log('Tinggi iframe disesuaikan menjadi: ' + newHeight + 'px');
+            }
+        }
+    }, false); // 'false' adalah nilai default, tapi baik untuk kejelasan
+</script>
