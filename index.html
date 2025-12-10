@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Widget Iframe</title>
+    <title>Widget Iframe (Pengirim Tinggi)</title>
     <style>
-        /* CSS Penting untuk mencegah spillover */
-        body { margin: 0; padding: 0; }
+        /* CSS Penting untuk mencegah spillover dan scrollbar ganda */
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+        }
         .content { 
-            /* Tambahkan konten yang panjang dan dinamis */
             background-color: #e0f7fa; 
             padding: 20px;
         }
@@ -23,24 +26,40 @@
     </div>
 
     <script>
+        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat
+        function getAccurateHeight() {
+            // Mengukur tinggi maksimum dari berbagai properti untuk kompatibilitas dan akurasi
+            return Math.max(
+                document.body.scrollHeight, 
+                document.documentElement.scrollHeight, 
+                document.body.offsetHeight, 
+                document.documentElement.offsetHeight,
+                document.body.clientHeight, 
+                document.documentElement.clientHeight
+            );
+        }
+
         function sendHeight() {
-            // Gunakan salah satu metode pengukuran akurat
-            const contentHeight = document.body.scrollHeight;
+            // Gunakan fungsi pengukuran yang lebih akurat
+            const contentHeight = getAccurateHeight();
 
             // Kirim tinggi ke Parent
-            // Di lingkungan CodePen/JSFiddle, Origin berbeda, jadi ini aman
+            // Gunakan identifier 'jastip-calculator-widget' atau identifier unik lainnya
             window.parent.postMessage({
                 height: contentHeight,
-                frameId: 'my-test-widget' // Identifier
+                frameId: 'jastip-calculator-widget' // Ganti dari 'my-test-widget' ke nama spesifik
             }, '*');
             console.log('Tinggi dikirim: ' + contentHeight + 'px');
         }
 
-        // Panggil saat dimuat dan saat ada perubahan ukuran
-        window.onload = sendHeight;
+        // 1. Panggil saat semua aset halaman dimuat (lebih baik daripada window.onload)
+        window.addEventListener('load', sendHeight);
+
+        // 2. Panggil saat ada perubahan ukuran jendela (misal, rotasi perangkat)
         window.addEventListener('resize', sendHeight);
         
-        // Timeout untuk memastikan semua aset telah dimuat (jika ada gambar dll.)
+        // 3. Jaring pengaman: Panggil setelah jeda pendek
+        // Berguna jika ada script eksternal atau gambar yang dimuat setelah event 'load'
         setTimeout(sendHeight, 500); 
     </script>
 </body>
