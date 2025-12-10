@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Widget Iframe (Pengirim Tinggi)</title>
+    <title>Widget Iframe (Pengirim Tinggi Stabil)</title>
     <style>
-        /* CSS Penting: Hapus margin/padding body untuk pengukuran yang akurat dan hindari spillover */
+        /* PENTING: Hapus margin/padding default browser */
         html, body { 
             margin: 0; 
             padding: 0;
-            overflow-x: hidden; /* Mencegah scroll horizontal */
+            overflow-x: hidden; 
         }
-        
-        /* Konten Placeholder Anda - Ganti dengan CSS Kalkulator Anda */
+        /* Style konten Anda */
         .content { 
+            /* Ganti dengan CSS kalkulator Anda */
             background-color: #e0f7fa; 
             padding: 20px;
-            /* Tambahkan style lain dari kalkulator Anda */
         }
     </style>
 </head>
@@ -30,50 +29,45 @@
     </div>
 
     <script>
-        // Variabel untuk melacak tinggi yang terakhir dikirim
         let lastSentHeight = 0; 
 
-        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat
+        // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
         function getAccurateHeight() {
-            // Mengukur tinggi maksimum dari berbagai properti untuk kompatibilitas dan akurasi
-            return Math.max(
-                document.body.scrollHeight, 
-                document.documentElement.scrollHeight, 
-                document.body.offsetHeight, 
-                document.documentElement.offsetHeight,
-                document.body.clientHeight, 
-                document.documentElement.clientHeight
+            // Gunakan Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
+            return Math.round(
+                Math.max(
+                    document.body.scrollHeight, 
+                    document.documentElement.scrollHeight, 
+                    document.body.offsetHeight, 
+                    document.documentElement.offsetHeight,
+                    document.body.clientHeight, 
+                    document.documentElement.clientHeight
+                )
             );
         }
 
         function sendHeight() {
             const currentHeight = getAccurateHeight();
             
-            // PENTING: Hanya kirim pesan jika tingginya berubah dari terakhir kali dikirim
+            // HANYA KIRIM JIKA TINGGI BERUBAH
             if (currentHeight === lastSentHeight) {
-                // console.log('Tinggi tidak berubah, pengiriman dilewati.');
                 return; 
             }
 
             // Kirim tinggi ke Parent
             window.parent.postMessage({
                 height: currentHeight,
-                frameId: 'jastip-calculator-widget' // Pastikan ID ini sama dengan ID iframe di halaman induk
+                frameId: 'jastip-calculator-widget' 
             }, '*');
 
-            lastSentHeight = currentHeight; // Perbarui tinggi terakhir yang dikirim
+            lastSentHeight = currentHeight; 
             console.log('Tinggi Kalkulator Jastip dikirim: ' + currentHeight + 'px');
         }
 
-        // 1. Panggil saat semua aset halaman dimuat (Paling andal)
+        // Event listener yang stabil (tidak ada setInterval atau setTimeout berulang)
         window.addEventListener('load', sendHeight);
-
-        // 2. Panggil saat ada perubahan ukuran jendela (misal, rotasi perangkat)
         window.addEventListener('resize', sendHeight);
-        
-        // 3. Jaring pengaman: Panggil setelah jeda pendek, lalu HENTIKAN perulangan
-        // Timeout ini hanya berjalan sekali (tidak ada setInterval yang menyebabkan looping tak berujung)
-        setTimeout(sendHeight, 500); 
+        setTimeout(sendHeight, 500); // Jaring pengaman sekali jalan
     </script>
 </body>
 </html>
