@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V2.5</title>
+    <title>Jastip Calculator V2.6</title>
     
     <style>
     /* --- CSS BASIC --- */
@@ -130,7 +130,7 @@
 
 <div class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 2.5 by Steven Alexander</p>
+    <p class="version-tag">Versi 2.6 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -438,13 +438,12 @@
         if(btn) btn.classList.add('active');
         const map = { 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' };
         document.getElementById(map[method]).classList.add('active');
-        
         document.getElementById('shippingDetailBox').style.display = 'none';
         
-        // --- NEW: Force multiple signals for resizing ---
+        // Multiple resize signals to handle animation smooth transition
         sendHeight(); 
         setTimeout(sendHeight, 50);
-        setTimeout(sendHeight, 300); // After animation
+        setTimeout(sendHeight, 300);
     }
 
     function setMode(type, mode) {
@@ -679,7 +678,8 @@
     const FALLBACK_DELAY_MS = 50;
     const getAccurateHeight = () => {
         const { body, documentElement: html } = document;
-        return Math.round(Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight));
+        // Adding +20 buffer for safer scroll area
+        return Math.round(Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight)) + 20;
     };
     const sendHeight = () => {
         const currentHeight = getAccurateHeight();
