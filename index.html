@@ -30,52 +30,51 @@
     </div>
 
 <script>
-    let lastSentHeight = 0; 
+    let lastSentHeight = 0;
+    const FRAME_ID = 'jastip-calculator-widget';
+    const FALLBACK_DELAY_MS = 50;
 
-    // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
-    function getAccurateHeight() {
-        // Gunakan Math.round() untuk mencegah nilai pecahan
+    const getAccurateHeight = () => {
+        const { body, documentElement: html } = document;
+        
         return Math.round(
             Math.max(
-                document.body.scrollHeight, 
-                document.documentElement.scrollHeight, 
-                document.body.offsetHeight, 
-                document.documentElement.offsetHeight,
-                document.body.clientHeight, 
-                document.documentElement.clientHeight
+                body.scrollHeight,
+                html.scrollHeight,
+                body.offsetHeight,
+                html.offsetHeight,
+                body.clientHeight,
+                html.clientHeight
             )
         );
-    }
+    };
 
-    function sendHeight() {
+    const sendHeight = () => {
         const currentHeight = getAccurateHeight();
 
-        // PENTING: Hanya kirim jika tingginya berubah (mencegah looping dari Taplink)
         if (currentHeight === lastSentHeight && lastSentHeight !== 0) {
-             return; 
+            return;
         }
         
-        // Kirim height ke Parent
         window.parent.postMessage({
             height: currentHeight,
-            frameId: 'jastip-calculator-widget' 
+            frameId: FRAME_ID
         }, '*');
         
         lastSentHeight = currentHeight;
-        console.log('Tinggi FINAL dikirim (segera): ' + currentHeight + 'px');
-    }
+        console.log(`Final Height Sent: ${currentHeight}px`);
+    };
 
-    // --- KONTROL UTAMA: Panggilan Setelah Load ---
+    // --- Control Flow ---
     
-    // 1. Panggil saat halaman dimuat (event load). Ini adalah panggilan utama yang andal.
+    // 1. Primary call on page load
     window.addEventListener('load', sendHeight);
 
-    // 2. Panggil saat ada perubahan ukuran jendela.
-    window.addEventListener('resize', sendHeight); 
+    // 2. Call on window resize
+    window.addEventListener('resize', sendHeight);
     
-    // 3. Jaring pengaman (berjalan setelah 50ms, bukan 3 detik)
-    // Ini membantu jika ada aset yang dimuat sangat cepat setelah event 'load'
-    setTimeout(sendHeight, 50); 
+    // 3. Fallback/Safety Net call
+    setTimeout(sendHeight, FALLBACK_DELAY_MS);
 </script>
 </body>
 </html>
