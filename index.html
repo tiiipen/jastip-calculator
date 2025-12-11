@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Widget Iframe (Pengirim Tinggi Stabil)</title>
+    <title>Widget Iframe (Pengirim Tinggi)</title>
     <style>
-        /* PENTING: Hapus margin/padding default browser */
+        /* CSS Penting: Hapus margin/padding body untuk pengukuran yang akurat dan hindari spillover */
         html, body { 
             margin: 0; 
             padding: 0;
-            overflow-x: hidden; 
+            overflow-x: hidden; /* Mencegah scroll horizontal */
         }
-        /* Style konten Anda */
+        
+        /* Konten Placeholder Anda - Ganti dengan CSS Kalkulator Anda */
         .content { 
-            /* Ganti dengan CSS kalkulator Anda */
             background-color: #e0f7fa; 
             padding: 20px;
+            /* Tambahkan style lain dari kalkulator Anda */
         }
     </style>
 </head>
@@ -28,13 +29,14 @@
         <p>Akhir dari Kalkulator Anda.</p>
     </div>
 
-  <script>
+    <script>
     let lastSentHeight = 0; 
-    let initialLoadSent = false; // FLAG PENTING: Untuk memastikan pemuatan awal hanya terjadi sekali
+    let checkInterval; 
+    let stableCount = 0; // Menghitung berapa kali tinggi stabil
 
     // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
     function getAccurateHeight() {
-        // Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
+        // PENTING: Gunakan Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
         return Math.round(
             Math.max(
                 document.body.scrollHeight, 
@@ -49,39 +51,53 @@
 
     function sendHeight() {
         const currentHeight = getAccurateHeight();
-        
-        // PENTING: Hanya kirim pesan jika tingginya berubah dari terakhir kali dikirim
-        if (currentHeight === lastSentHeight) {
-            return; 
+
+        // Cek 1: Apakah tinggi berubah?
+        if (currentHeight !== lastSentHeight) {
+            
+            // TINGGI BERUBAH: Reset hitungan stabil, kirim pesan baru
+            stableCount = 0;
+            
+            window.parent.postMessage({
+                height: currentHeight,
+                frameId: 'jastip-calculator-widget' 
+            }, '*');
+
+            lastSentHeight = currentHeight; 
+        } else {
+            // TINGGI STABIL: Tambahkan hitungan
+            stableCount++;
         }
 
-        // Kirim tinggi ke Parent
-        window.parent.postMessage({
-            height: currentHeight,
-            frameId: 'jastip-calculator-widget' 
-        }, '*');
-
-        lastSentHeight = currentHeight; // Perbarui tinggi terakhir yang dikirim
-        // console.log('Tinggi Kalkulator Jastip dikirim: ' + currentHeight + 'px');
+        // Cek 2: Jika tinggi stabil selama 5 kali pemeriksaan (0.5 detik), HENTIKAN INTERVAL
+        if (stableCount >= 5) {
+            clearInterval(checkInterval);
+            console.log('Pengukuran stabil dan dihentikan.');
+        }
     }
 
-    // --- KONTROL PEMUATAN AWAL ---
+    // --- KONTROL UTAMA: Mengaktifkan Pengecekan Berulang ---
 
-    function initialSend() {
-        if (initialLoadSent) return; // Hentikan jika sudah pernah dipanggil
-        sendHeight();
-        initialLoadSent = true;
+    function startHeightCheck() {
+        // Hentikan interval lama jika ada (jaring pengaman)
+        if (checkInterval) {
+            clearInterval(checkInterval);
+        }
+        stableCount = 0; // Reset
+        lastSentHeight = 0; // Reset
+
+        // Mulai interval: Kirim height setiap 100 milidetik (sangat cepat)
+        checkInterval = setInterval(sendHeight, 100);
     }
-
-    // 1. Panggil saat semua aset halaman dimuat
-    window.addEventListener('load', initialSend);
+    
+    // 1. Panggil saat halaman dimuat (event load)
+    window.addEventListener('load', startHeightCheck);
 
     // 2. Panggil saat ada perubahan ukuran jendela (perlu dipertahankan)
-    window.addEventListener('resize', sendHeight);
+    window.addEventListener('resize', startHeightCheck);
     
-    // 3. Jaring pengaman (berjalan sekali)
-    // Panggil setelah jeda singkat untuk memastikan semua konten dinamis sudah dimuat
-    setTimeout(initialSend, 500); 
+    // 3. Jaring pengaman terakhir: Panggil startCheck setelah 1 detik jika load gagal
+    setTimeout(startHeightCheck, 1000); 
     
 </script>
 </body>
