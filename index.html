@@ -30,13 +30,11 @@
     </div>
 
    <script>
-    let lastSentHeight = 0; 
-    let checkInterval; 
-    let stableCount = 0; // Menghitung berapa kali tinggi stabil
+    let finalHeightSent = false; // Flag untuk memastikan pengiriman final hanya sekali
 
     // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
     function getAccurateHeight() {
-        // PENTING: Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
+        // PENTING: Gunakan Math.round() untuk mencegah nilai pecahan
         return Math.round(
             Math.max(
                 document.body.scrollHeight, 
@@ -51,54 +49,38 @@
 
     function sendHeight() {
         const currentHeight = getAccurateHeight();
+        
+        // Kirim height ke Parent
+        window.parent.postMessage({
+            height: currentHeight,
+            frameId: 'jastip-calculator-widget' 
+        }, '*');
 
-        // Cek 1: Apakah tinggi berubah?
-        if (currentHeight !== lastSentHeight) {
-            
-            // TINGGI BERUBAH: Reset hitungan stabil, kirim pesan baru
-            stableCount = 0;
-            
-            window.parent.postMessage({
-                height: currentHeight,
-                frameId: 'jastip-calculator-widget' 
-            }, '*');
-
-            lastSentHeight = currentHeight; 
-        } else {
-            // TINGGI STABIL: Tambahkan hitungan
-            stableCount++;
-        }
-
-        // Cek 2: Jika tinggi stabil selama 5 kali pemeriksaan (0.5 detik), HENTIKAN INTERVAL
-        if (stableCount >= 5) {
-            clearInterval(checkInterval);
-            console.log('Pengukuran stabil dan dihentikan.');
-        }
+        console.log('Tinggi dikirim: ' + currentHeight + 'px');
     }
 
-    // --- KONTROL UTAMA: Mengaktifkan Pengecekan Berulang ---
+    // --- KONTROL UTAMA: Menggunakan Timeout 3 Detik ---
 
-    function startHeightCheck() {
-        // Hentikan interval lama jika ada (jaring pengaman)
-        if (checkInterval) {
-            clearInterval(checkInterval);
-        }
-        stableCount = 0; // Reset
-        lastSentHeight = 0; // Reset
+    function startFinalSend() {
+        if (finalHeightSent) return; // Hentikan jika sudah pernah dipanggil
 
-        // Mulai interval: Kirim height setiap 100 milidetik (sangat cepat)
-        checkInterval = setInterval(sendHeight, 100);
+        // Tunggu 3 detik penuh sebelum mengukur dan mengirim height
+        // Dalam 3 detik, konten asinkron seharusnya sudah selesai dimuat.
+        setTimeout(() => {
+            sendHeight();
+            finalHeightSent = true;
+            console.log('Pengiriman height final Selesai setelah 3 detik.');
+        }, 3000); // Penundaan 3000 milidetik (3 detik)
     }
     
     // Panggil saat halaman dimuat (event load)
-    window.addEventListener('load', startHeightCheck);
+    window.addEventListener('load', startFinalSend);
 
-    // Panggil saat ada perubahan ukuran jendela (perlu dipertahankan)
-    window.addEventListener('resize', startHeightCheck);
+    // Panggil saat ada perubahan ukuran jendela. Resize harus segera terjadi (tanpa delay)
+    window.addEventListener('resize', sendHeight); 
     
-    // Jaring pengaman terakhir: Panggil startCheck setelah 1 detik jika load gagal
-    setTimeout(startHeightCheck, 1000); 
-    
+    // Jaring pengaman tambahan: Panggil startFinalSend setelah 500ms
+    setTimeout(startFinalSend, 500); 
 </script>
 </body>
 </html>
