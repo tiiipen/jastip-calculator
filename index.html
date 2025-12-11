@@ -29,14 +29,14 @@
         <p>Akhir dari Kalkulator Anda.</p>
     </div>
 
-    <script>
+   <script>
     let lastSentHeight = 0; 
     let checkInterval; 
     let stableCount = 0; // Menghitung berapa kali tinggi stabil
 
     // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
     function getAccurateHeight() {
-        // PENTING: Gunakan Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
+        // PENTING: Math.round() untuk mencegah nilai pecahan yang menyebabkan looping
         return Math.round(
             Math.max(
                 document.body.scrollHeight, 
@@ -90,13 +90,13 @@
         checkInterval = setInterval(sendHeight, 100);
     }
     
-    // 1. Panggil saat halaman dimuat (event load)
+    // Panggil saat halaman dimuat (event load)
     window.addEventListener('load', startHeightCheck);
 
-    // 2. Panggil saat ada perubahan ukuran jendela (perlu dipertahankan)
+    // Panggil saat ada perubahan ukuran jendela (perlu dipertahankan)
     window.addEventListener('resize', startHeightCheck);
     
-    // 3. Jaring pengaman terakhir: Panggil startCheck setelah 1 detik jika load gagal
+    // Jaring pengaman terakhir: Panggil startCheck setelah 1 detik jika load gagal
     setTimeout(startHeightCheck, 1000); 
     
 </script>
