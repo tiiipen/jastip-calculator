@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V3.0</title>
+    <title>Jastip Calculator V3.1</title>
     
     <style>
-    /* --- CSS RESET (KRUSIAL UNTUK IFRAME) --- */
+    /* --- CSS RESET --- */
     * { box-sizing: border-box; }
     
     html, body {
         margin: 0;
         padding: 0;
         width: 100%;
-        /* PENTING: Jangan set height 100%, biarkan auto mengikuti konten */
         height: auto; 
         min-height: 0; 
         background-color: #ffffff;
-        overflow: hidden; /* Paksa sembunyikan scrollbar internal */
     }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -32,7 +30,7 @@
         max-width: 450px;
         margin: 0 auto; 
         display: block;
-        padding-bottom: 20px;
+        padding-bottom: 30px; /* Extra buffer bawah */
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
@@ -138,7 +136,7 @@
 
 <div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 3.0 by Steven Alexander</p>
+    <p class="version-tag">Versi 3.1 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -382,7 +380,25 @@
 </div>
 
 <script>
-    // --- STATE VARIABLES & HELPERS ---
+    // --- RESIZE SYSTEM (CORE FIX) ---
+    const FRAME_ID = 'jastip-calculator-widget';
+    
+    // Fungsi pengirim pesan utama
+    function sendHeight() {
+        const h = document.body.scrollHeight + 30; // +30 Buffer aman
+        window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
+    }
+
+    // Fungsi pemanggil beruntun (Burst) untuk menangkap animasi
+    function triggerResizeSequence() {
+        sendHeight();
+        setTimeout(sendHeight, 20);
+        setTimeout(sendHeight, 50);
+        setTimeout(sendHeight, 100);
+        setTimeout(sendHeight, 300); // Akhir animasi
+    }
+
+    // --- STATE & HELPERS ---
     let currentShipping = 'handCarry';
     const modes = { profit: 'percent', handCarry: 'percent', other: 'percent' };
     const basis = { profit: 'modal', handCarry: 'modal', other: 'modal' };
@@ -393,9 +409,9 @@
     function getRawValue(id) { const el=document.getElementById(id); return !el?0:(parseFloat(el.value.replace(/\./g,'').replace(/,/g,''))||0); }
     function formatInputNumber(el) { let v=el.value.replace(/\./g,'').replace(/,/g,''); if(v){ el.value=new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(parseFloat(v)); }else{el.value='';} }
     function setupSync(sId, iId) { const s=document.getElementById(sId), i=document.getElementById(iId); if(s&&i){ s.addEventListener('input',()=>{i.value=s.value;}); i.addEventListener('input',()=>{let v=parseFloat(i.value); if(v>s.max)v=s.max; if(v<s.min)v=s.min; s.value=v;}); } }
-    function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); }
+    function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); triggerResizeSequence(); }
 
-    // --- UI LOGIC ---
+    // --- UI ACTIONS (WITH RESIZE TRIGGERS) ---
     function selectShipping(method) {
         currentShipping = method;
         document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('active'));
@@ -404,6 +420,8 @@
         if(btn) btn.classList.add('active');
         document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
         document.getElementById('shippingDetailBox').style.display = 'none';
+        
+        // PENTING: Panggil Resize saat tab berubah
         triggerResizeSequence();
     }
 
@@ -413,11 +431,14 @@
         let parent = document.querySelector(`#${wrapId}`).closest('.input-group');
         parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
+        
         let p = document.getElementById(type === 'profit' ? 'profit-percent-wrapper' : type === 'handCarry' ? 'hc-percent-wrapper' : 'other-percent-wrapper');
         let f = document.getElementById(type === 'profit' ? 'profit-fixed-wrapper' : type === 'handCarry' ? 'hc-fixed-wrapper' : 'other-fixed-wrapper');
         let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
+
         if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
         else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
+        
         triggerResizeSequence();
     }
 
@@ -431,9 +452,7 @@
         triggerResizeSequence();
     }
 
-    // --- MAIN CALCULATION ---
     function calculateJastip() {
-        // Calculation Logic (Identical to V2.8)
         const modalSource = getRawValue('modalPriceSource');
         const rate = getRawValue('exchangeRate');
         const modalIDR = modalSource * rate;
@@ -530,10 +549,10 @@
         document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
         document.getElementById('kursOutput').textContent = formatCurrency(rate);
         
+        // PENTING: Panggil Resize setelah kalkulasi selesai
         triggerResizeSequence();
     }
 
-    // --- INIT ---
     document.addEventListener('DOMContentLoaded', () => {
         setupSync('profitMarginSlider', 'profitMargin');
         setupSync('hcRateSlider', 'hcRate');
@@ -542,45 +561,12 @@
         ids.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', function(){formatInputNumber(this);}); });
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
         
-        // --- NEW: RESIZE OBSERVER (BULLETPROOF) ---
-        const resizeObserver = new ResizeObserver(() => {
-            triggerResizeSequence();
-        });
-        resizeObserver.observe(document.body); // Watch body
-        resizeObserver.observe(document.getElementById('main-container')); // Watch Container
+        // Setup MutationObserver (Backup Listener)
+        const observer = new MutationObserver(() => triggerResizeSequence());
+        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
         
         triggerResizeSequence();
     });
-
-    // --- RESIZE LOGIC (ANTI-CUTOFF) ---
-    const FRAME_ID = 'jastip-calculator-widget';
-    
-    function getAccurateHeight() {
-        var body = document.body;
-        var html = document.documentElement;
-        
-        // Strategy: Get max absolute height found
-        var height = Math.max(
-            body.scrollHeight, body.offsetHeight, 
-            html.clientHeight, html.scrollHeight, html.offsetHeight
-        );
-        // SAFETY BUFFER 30px
-        return height + 30;
-    }
-
-    function sendHeight() {
-        const h = getAccurateHeight();
-        window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
-    }
-
-    function triggerResizeSequence() {
-        sendHeight();
-        requestAnimationFrame(() => {
-            sendHeight();
-            setTimeout(sendHeight, 50);
-            setTimeout(sendHeight, 200);
-        });
-    }
 
 </script>
 </body>
