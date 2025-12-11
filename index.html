@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V2.7</title>
+    <title>Jastip Calculator V2.8</title>
     
     <style>
     /* --- CSS BASIC --- */
     * { box-sizing: border-box; }
     
     /* Background Body Putih & No Margin */
-    body { margin: 0 !important; padding: 0 !important; width: 100%; overflow-x: hidden; background-color: #ffffff; }
-    html { height: auto; min-height: 100%; }
+    body { margin: 0 !important; padding: 0 !important; width: 100%; overflow: hidden; background-color: #ffffff; }
+    html { height: auto; }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
@@ -26,7 +26,10 @@
         margin: 0 auto; 
         border-radius: 0; 
         box-shadow: none; 
-        padding-bottom: 30px; /* Extra padding bawah agar aman */
+        padding-bottom: 20px; 
+        /* Pastikan container membungkus konten */
+        display: block;
+        position: relative;
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
@@ -130,9 +133,9 @@
 </head>
 <body>
 
-<div class="calculator-container">
+<div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 2.7 by Steven Alexander</p>
+    <p class="version-tag">Versi 2.8 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -378,73 +381,31 @@
 <script>
     // --- STATE VARIABLES ---
     let currentShipping = 'handCarry';
-    const modes = {
-        profit: 'percent',
-        handCarry: 'percent',
-        other: 'percent'
-    };
-    const basis = {
-        profit: 'modal',
-        handCarry: 'modal',
-        other: 'modal'
-    };
+    const modes = { profit: 'percent', handCarry: 'percent', other: 'percent' };
+    const basis = { profit: 'modal', handCarry: 'modal', other: 'modal' };
 
     // --- HELPER FUNCTIONS ---
-    function formatCurrency(number) {
-        if (isNaN(number) || number === null) return 'Rp 0';
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.round(number));
-    }
-    function formatNumber(number) {
-        if (isNaN(number) || number === null) return '0';
-        return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(Math.round(number));
-    }
-    function formatDecimal(number, digits = 2) {
-        if (isNaN(number) || number === null) return '0';
-        return number.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: digits });
-    }
-    function getRawValue(id) {
-        const el = document.getElementById(id);
-        if(!el) return 0;
-        return parseFloat(el.value.replace(/\./g, '').replace(/,/g, '')) || 0;
-    }
-    function formatInputNumber(inputElement) {
-        let value = inputElement.value.replace(/\./g, '').replace(/,/g, ''); 
-        if (value) {
-            const numberValue = parseFloat(value); 
-            inputElement.value = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(numberValue);
-        } else {
-            inputElement.value = '';
-        }
-    }
-    function setupSync(sliderId, inputId) {
-        const slider = document.getElementById(sliderId);
-        const input = document.getElementById(inputId);
-        if(slider && input) {
-            slider.addEventListener('input', () => { input.value = slider.value; });
-            input.addEventListener('input', () => { 
-                let val = parseFloat(input.value);
-                if(val > slider.max) val = slider.max;
-                if(val < slider.min) val = slider.min;
-                slider.value = val;
-            });
-        }
-    }
+    function formatCurrency(n) { return (isNaN(n)||n===null)?'Rp 0':new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Math.round(n)); }
+    function formatNumber(n) { return (isNaN(n)||n===null)?'0':new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(Math.round(n)); }
+    function formatDecimal(n, d=2) { return (isNaN(n)||n===null)?'0':n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+    function getRawValue(id) { const el=document.getElementById(id); return !el?0:(parseFloat(el.value.replace(/\./g,'').replace(/,/g,''))||0); }
+    function formatInputNumber(el) { let v=el.value.replace(/\./g,'').replace(/,/g,''); if(v){ el.value=new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(parseFloat(v)); }else{el.value='';} }
+    function setupSync(sId, iId) { const s=document.getElementById(sId), i=document.getElementById(iId); if(s&&i){ s.addEventListener('input',()=>{i.value=s.value;}); i.addEventListener('input',()=>{let v=parseFloat(i.value); if(v>s.max)v=s.max; if(v<s.min)v=s.min; s.value=v;}); } }
     function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); }
 
-    // --- UI INTERACTION FUNCTIONS ---
+    // --- LOGIC UI ---
     function selectShipping(method) {
         currentShipping = method;
         document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.method-container').forEach(el => el.classList.remove('active'));
         const btn = document.querySelector(`.shipping-option[data-value="${method}"]`);
         if(btn) btn.classList.add('active');
-        const map = { 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' };
-        document.getElementById(map[method]).classList.add('active');
+        document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
+        
         document.getElementById('shippingDetailBox').style.display = 'none';
         
-        // Manual triggers just in case, though Observer handles it
-        sendHeight(); 
-        setTimeout(sendHeight, 100);
+        // Force triggers for resize
+        triggerResizeSequence();
     }
 
     function setMode(type, mode) {
@@ -453,49 +414,36 @@
         let parent = document.querySelector(`#${wrapId}`).closest('.input-group');
         parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
+        
         let p = document.getElementById(type === 'profit' ? 'profit-percent-wrapper' : type === 'handCarry' ? 'hc-percent-wrapper' : 'other-percent-wrapper');
         let f = document.getElementById(type === 'profit' ? 'profit-fixed-wrapper' : type === 'handCarry' ? 'hc-fixed-wrapper' : 'other-fixed-wrapper');
+        let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
+
+        if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
+        else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
         
-        let basisOpt = null;
-        if(type === 'profit') basisOpt = document.getElementById('profitBasisOptions');
-        if(type === 'handCarry') basisOpt = document.getElementById('hcBasisOptions');
-        if(type === 'other') basisOpt = document.getElementById('otherBasisOptions');
-
-        if(mode === 'percent') {
-            p.style.display = 'flex'; f.style.display = 'none';
-            if(basisOpt) basisOpt.style.display = 'block'; 
-        } else {
-            p.style.display = 'none'; f.style.display = 'flex';
-            if(basisOpt) basisOpt.style.display = 'none'; 
-        }
+        triggerResizeSequence();
     }
 
-    function toggleBasis(type, selection) {
+    function toggleBasis(type, sel) {
         const key = type === 'hc' ? 'handCarry' : type;
-        basis[key] = selection;
-        const modalId = type === 'profit' ? 'profitCheckModal' : (type === 'hc' ? 'hcCheckModal' : 'otherCheckModal');
-        const jualId = type === 'profit' ? 'profitCheckJual' : (type === 'hc' ? 'hcCheckJual' : 'otherCheckJual');
-        if (selection === 'modal') {
-            document.getElementById(modalId).classList.add('checked');
-            document.getElementById(jualId).classList.remove('checked');
-        } else {
-            document.getElementById(modalId).classList.remove('checked');
-            document.getElementById(jualId).classList.add('checked');
-        }
+        basis[key] = sel;
+        const mId = type === 'profit' ? 'profitCheckModal' : (type === 'hc' ? 'hcCheckModal' : 'otherCheckModal');
+        const jId = type === 'profit' ? 'profitCheckJual' : (type === 'hc' ? 'hcCheckJual' : 'otherCheckJual');
+        if (sel === 'modal') { document.getElementById(mId).classList.add('checked'); document.getElementById(jId).classList.remove('checked'); } 
+        else { document.getElementById(mId).classList.remove('checked'); document.getElementById(jId).classList.add('checked'); }
     }
 
-    // --- CALCULATION LOGIC ---
     function calculateJastip() {
+        // ... (Logic Sama seperti V2.3/V2.4) ...
+        // Agar kode ringkas, saya persingkat logic ini karena logic matematika tidak berubah
+        // Fokus perbaikan ada di Resize System di bawah
+        
         const modalSource = getRawValue('modalPriceSource');
         const rate = getRawValue('exchangeRate');
         const modalIDR = modalSource * rate;
         const actualPrice = getRawValue('actualPriceInput');
-
-        let sellingPrice = 0;
-        let profitAmount = 0;
-        let shippingAmount = 0;
-        let otherAmount = 0;
-        let shipBaseAmount = 0;
+        let sellingPrice=0, profitAmount=0, shippingAmount=0, otherAmount=0, shipBaseAmount=0;
         
         const detailBox = document.getElementById('shippingDetailBox');
         const elVol = document.getElementById('detailVolume');
@@ -503,146 +451,84 @@
         const elWeight = document.getElementById('detailWeight');
         const elFormula = document.getElementById('detailFormula');
         
-        elVol.style.display = 'flex';
-        elWeight.style.display = 'flex';
+        elVol.style.display = 'flex'; elWeight.style.display = 'flex';
         
         if (currentShipping === 'handCarry') {
             detailBox.style.display = 'none';
-            if (modes.handCarry === 'fixed') {
-                shipBaseAmount = getRawValue('hcFixed');
-            }
+            if (modes.handCarry === 'fixed') shipBaseAmount = getRawValue('hcFixed');
         } 
         else if (currentShipping === 'airFreight') {
             detailBox.style.display = 'block';
             const pricePerKg = getRawValue('airPricePerKg');
-            const weight = parseFloat(document.getElementById('airWeight')?.value) || 0;
-            const p = parseFloat(document.getElementById('airP')?.value) || 0;
-            const l = parseFloat(document.getElementById('airL')?.value) || 0;
-            const t = parseFloat(document.getElementById('airT')?.value) || 0;
-            const volWeight = (p * l * t) / 6000;
+            const weight = parseFloat(document.getElementById('airWeight')?.value)||0;
+            const p = parseFloat(document.getElementById('airP')?.value)||0;
+            const l = parseFloat(document.getElementById('airL')?.value)||0;
+            const t = parseFloat(document.getElementById('airT')?.value)||0;
+            const volWeight = (p*l*t)/6000;
             const useHighest = document.getElementById('airCalcCheckbox').classList.contains('checked');
-            
-            if (volWeight === 0) elVol.style.display = 'none';
-
+            if(volWeight===0) elVol.style.display='none';
             let chargeableWeight = weight;
-            if (useHighest && volWeight > weight) chargeableWeight = volWeight;
-            else if (weight === 0 && volWeight > 0) chargeableWeight = volWeight;
-
+            if(useHighest && volWeight>weight) chargeableWeight=volWeight;
+            else if(weight===0 && volWeight>0) chargeableWeight=volWeight;
             shipBaseAmount = chargeableWeight * pricePerKg;
-            
-            elVol.innerHTML = `Volume : ${p} x ${l} x ${t} / 6000 = <b>${formatDecimal(volWeight, 2)} Kg</b>`;
-            elRate.innerHTML = `Biaya Per Kg = ${formatCurrency(pricePerKg)}`;
-            elWeight.innerHTML = `Berat Aktual = ${formatDecimal(weight, 2)} Kg`;
-            elFormula.innerHTML = `Biaya Pengiriman : <br> ${formatDecimal(chargeableWeight, 2)} Kg x ${formatCurrency(pricePerKg)} = ${formatCurrency(shipBaseAmount)}`;
+            elVol.innerHTML=`Volume : ${p} x ${l} x ${t} / 6000 = <b>${formatDecimal(volWeight,2)} Kg</b>`;
+            elRate.innerHTML=`Biaya Per Kg = ${formatCurrency(pricePerKg)}`;
+            elWeight.innerHTML=`Berat Aktual = ${formatDecimal(weight,2)} Kg`;
+            elFormula.innerHTML=`Biaya Pengiriman : <br> ${formatDecimal(chargeableWeight,2)} Kg x ${formatCurrency(pricePerKg)} = ${formatCurrency(shipBaseAmount)}`;
         } 
         else if (currentShipping === 'seaFreight') {
             detailBox.style.display = 'block';
             const pricePerCBM = getRawValue('seaPricePerCBM');
-            const weight = parseFloat(document.getElementById('seaWeight')?.value) || 0;
-            const p = parseFloat(document.getElementById('seaP')?.value) || 0;
-            const l = parseFloat(document.getElementById('seaL')?.value) || 0;
-            const t = parseFloat(document.getElementById('seaT')?.value) || 0;
-            const volumeCBM = (p * l * t) / 1000000;
-            const weightEquivalentCBM = weight / 1000; 
+            const weight = parseFloat(document.getElementById('seaWeight')?.value)||0;
+            const p = parseFloat(document.getElementById('seaP')?.value)||0;
+            const l = parseFloat(document.getElementById('seaL')?.value)||0;
+            const t = parseFloat(document.getElementById('seaT')?.value)||0;
+            const volumeCBM = (p*l*t)/1000000;
+            const weightEquivalentCBM = weight/1000;
             const useHighest = document.getElementById('seaCalcCheckbox').classList.contains('checked');
-            const minCBM = parseFloat(document.getElementById('seaMinCBM')?.value) || 0;
-
-            if (weight === 0) elWeight.style.display = 'none';
-
+            const minCBM = parseFloat(document.getElementById('seaMinCBM')?.value)||0;
+            if(weight===0) elWeight.style.display='none';
             let chargeableCBM = volumeCBM;
-            if (useHighest && weightEquivalentCBM > volumeCBM) chargeableCBM = weightEquivalentCBM;
-
-            if (minCBM > 0 && chargeableCBM < minCBM) {
-                chargeableCBM = minCBM;
-            }
-
+            if(useHighest && weightEquivalentCBM>volumeCBM) chargeableCBM=weightEquivalentCBM;
+            if(minCBM>0 && chargeableCBM<minCBM) chargeableCBM=minCBM;
             shipBaseAmount = chargeableCBM * pricePerCBM;
-            
-            elVol.innerHTML = `Volume : ${p} x ${l} x ${t} = <b>${formatDecimal(volumeCBM, 4)} CBM</b>`;
-            elRate.innerHTML = `Biaya Per CBM = ${formatCurrency(pricePerCBM)}`;
-            elWeight.innerHTML = `Berat Aktual = ${formatDecimal(weight, 2)} Kg`;
-            elFormula.innerHTML = `Biaya Pengiriman : <br> ${formatDecimal(chargeableCBM, 4)} CBM x ${formatCurrency(pricePerCBM)} = ${formatCurrency(shipBaseAmount)}`;
+            elVol.innerHTML=`Volume : ${p} x ${l} x ${t} = <b>${formatDecimal(volumeCBM,4)} CBM</b>`;
+            elRate.innerHTML=`Biaya Per CBM = ${formatCurrency(pricePerCBM)}`;
+            elWeight.innerHTML=`Berat Aktual = ${formatDecimal(weight,2)} Kg`;
+            elFormula.innerHTML=`Biaya Pengiriman : <br> ${formatDecimal(chargeableCBM,4)} CBM x ${formatCurrency(pricePerCBM)} = ${formatCurrency(shipBaseAmount)}`;
         }
 
         if (actualPrice > 0) {
             document.getElementById('sellingPriceLabel').textContent = "Harga Jual Aktual";
             sellingPrice = actualPrice;
-            
-            if (currentShipping === 'handCarry' && modes.handCarry === 'percent') {
-                 if (basis.handCarry === 'modal') shippingAmount = modalIDR * (parseFloat(document.getElementById('hcRate')?.value) / 100);
-                 else shippingAmount = sellingPrice * (parseFloat(document.getElementById('hcRate')?.value) / 100);
-            } else {
-                shippingAmount = shipBaseAmount; 
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){
+                 if(basis.handCarry==='modal') shippingAmount=modalIDR*(parseFloat(document.getElementById('hcRate')?.value)/100);
+                 else shippingAmount=sellingPrice*(parseFloat(document.getElementById('hcRate')?.value)/100);
+            } else shippingAmount = shipBaseAmount;
+            if(modes.other==='fixed') otherAmount=getRawValue('otherFixed');
+            else {
+                const oPct=parseFloat(document.getElementById('otherRate')?.value)||0;
+                if(basis.other==='modal') otherAmount=modalIDR*(oPct/100); else otherAmount=sellingPrice*(oPct/100);
             }
-
-            if (modes.other === 'fixed') {
-                otherAmount = getRawValue('otherFixed');
-            } else {
-                const otherPct = parseFloat(document.getElementById('otherRate')?.value) || 0;
-                if (basis.other === 'modal') otherAmount = modalIDR * (otherPct / 100);
-                else otherAmount = sellingPrice * (otherPct / 100);
-            }
-
             profitAmount = sellingPrice - modalIDR - shippingAmount - otherAmount;
-
         } else {
             document.getElementById('sellingPriceLabel').textContent = "Harga Jual Minimal";
-            
-            let numerator = modalIDR;
-            let denominator = 1;
-
-            if (modes.profit === 'fixed') {
-                numerator += getRawValue('profitMarginFixed');
-            } else {
-                const pPct = parseFloat(document.getElementById('profitMargin')?.value) || 0;
-                if (basis.profit === 'modal') numerator += modalIDR * (pPct / 100);
-                else denominator -= (pPct / 100);
-            }
-
-            if (currentShipping === 'handCarry' && modes.handCarry === 'percent') {
-                const hcPct = parseFloat(document.getElementById('hcRate')?.value) || 0;
-                if (basis.handCarry === 'modal') numerator += modalIDR * (hcPct / 100);
-                else denominator -= (hcPct / 100);
-            } else {
-                numerator += shipBaseAmount;
-            }
-
-            if (modes.other === 'fixed') {
-                numerator += getRawValue('otherFixed');
-            } else {
-                const otherPct = parseFloat(document.getElementById('otherRate')?.value) || 0;
-                if (basis.other === 'modal') numerator += modalIDR * (otherPct / 100);
-                else denominator -= (otherPct / 100);
-            }
-
-            if (denominator <= 0) {
-                document.getElementById('minSellingPriceOutput').textContent = "Error (%)";
-                return;
-            }
-
-            sellingPrice = numerator / denominator;
-
-            if (modes.profit === 'percent' && basis.profit === 'jual') {
-                profitAmount = sellingPrice * (parseFloat(document.getElementById('profitMargin')?.value) / 100);
-            } else if (modes.profit === 'percent') {
-                profitAmount = modalIDR * (parseFloat(document.getElementById('profitMargin')?.value) / 100);
-            } else {
-                profitAmount = getRawValue('profitMarginFixed');
-            }
-
-            if (currentShipping === 'handCarry' && modes.handCarry === 'percent') {
-                if (basis.handCarry === 'jual') shippingAmount = sellingPrice * (parseFloat(document.getElementById('hcRate')?.value) / 100);
-                else shippingAmount = modalIDR * (parseFloat(document.getElementById('hcRate')?.value) / 100);
-            } else {
-                shippingAmount = shipBaseAmount;
-            }
-
-            if (modes.other === 'percent') {
-                if (basis.other === 'jual') otherAmount = sellingPrice * (parseFloat(document.getElementById('otherRate')?.value) / 100);
-                else otherAmount = modalIDR * (parseFloat(document.getElementById('otherRate')?.value) / 100);
-            } else {
-                otherAmount = getRawValue('otherFixed');
-            }
+            let num=modalIDR, den=1;
+            if(modes.profit==='fixed') num+=getRawValue('profitMarginFixed');
+            else { const p=parseFloat(document.getElementById('profitMargin')?.value)||0; if(basis.profit==='modal') num+=modalIDR*(p/100); else den-=(p/100); }
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){ const h=parseFloat(document.getElementById('hcRate')?.value)||0; if(basis.handCarry==='modal') num+=modalIDR*(h/100); else den-=(h/100); }
+            else num+=shipBaseAmount;
+            if(modes.other==='fixed') num+=getRawValue('otherFixed');
+            else { const o=parseFloat(document.getElementById('otherRate')?.value)||0; if(basis.other==='modal') num+=modalIDR*(o/100); else den-=(o/100); }
+            if(den<=0){ document.getElementById('minSellingPriceOutput').textContent="Error (%)"; return; }
+            sellingPrice=num/den;
+            if(modes.profit==='percent'&&basis.profit==='jual') profitAmount=sellingPrice*(parseFloat(document.getElementById('profitMargin')?.value)/100);
+            else if(modes.profit==='percent') profitAmount=modalIDR*(parseFloat(document.getElementById('profitMargin')?.value)/100);
+            else profitAmount=getRawValue('profitMarginFixed');
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){ if(basis.handCarry==='jual') shippingAmount=sellingPrice*(parseFloat(document.getElementById('hcRate')?.value)/100); else shippingAmount=modalIDR*(parseFloat(document.getElementById('hcRate')?.value)/100); }
+            else shippingAmount=shipBaseAmount;
+            if(modes.other==='percent'){ if(basis.other==='jual') otherAmount=sellingPrice*(parseFloat(document.getElementById('otherRate')?.value)/100); else otherAmount=modalIDR*(parseFloat(document.getElementById('otherRate')?.value)/100); }
+            else otherAmount=getRawValue('otherFixed');
         }
 
         document.getElementById('minSellingPriceOutput').textContent = formatCurrency(sellingPrice);
@@ -650,54 +536,60 @@
         document.getElementById('shippingCostOutput').textContent = formatCurrency(shippingAmount);
         document.getElementById('otherCostOutput').textContent = formatCurrency(otherAmount);
         document.getElementById('profitAmountOutput').textContent = formatCurrency(profitAmount);
-        
         document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
         document.getElementById('kursOutput').textContent = formatCurrency(rate);
         
-        sendHeight();
+        triggerResizeSequence();
     }
 
-    // --- INITIALIZATION ---
+    // --- INIT ---
     document.addEventListener('DOMContentLoaded', () => {
         setupSync('profitMarginSlider', 'profitMargin');
         setupSync('hcRateSlider', 'hcRate');
         setupSync('otherRateSlider', 'otherRate');
-
-        const idsToFormat = ['modalPriceSource', 'exchangeRate', 'profitMarginFixed', 'hcFixed', 'otherFixed', 'airPricePerKg', 'seaPricePerCBM', 'actualPriceInput'];
-        idsToFormat.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.addEventListener('input', function() { formatInputNumber(this); });
-        });
-
+        const ids = ['modalPriceSource', 'exchangeRate', 'profitMarginFixed', 'hcFixed', 'otherFixed', 'airPricePerKg', 'seaPricePerCBM', 'actualPriceInput'];
+        ids.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', function(){formatInputNumber(this);}); });
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
         
-        // --- NEW: RESIZE OBSERVER (The Automatic Solution) ---
-        // Ini akan memantau perubahan ukuran body secara otomatis
-        // Kapanpun "Rincian Biaya" muncul/hilang, ini akan mengirim sinyal
+        // --- RESIZE OBSERVER (SOLUTION) ---
         const resizeObserver = new ResizeObserver(() => {
             sendHeight();
         });
-        resizeObserver.observe(document.body);
-
-        sendHeight();
+        // Observe the CONTAINER, not just body
+        const container = document.getElementById('main-container');
+        if(container) resizeObserver.observe(container);
+        
+        triggerResizeSequence();
     });
 
-    let lastSentHeight = 0;
+    // --- RESIZE LOGIC (AGGRESSIVE) ---
     const FRAME_ID = 'jastip-calculator-widget';
-    const FALLBACK_DELAY_MS = 50;
-    const getAccurateHeight = () => {
-        const { body, documentElement: html } = document;
-        // Adding +20 buffer for safer scroll area
-        return Math.round(Math.max(body.scrollHeight, html.scrollHeight, body.offsetHeight, html.offsetHeight, body.clientHeight, html.clientHeight)) + 20;
-    };
-    const sendHeight = () => {
-        const currentHeight = getAccurateHeight();
-        if (currentHeight === lastSentHeight && lastSentHeight !== 0) return;
-        window.parent.postMessage({ height: currentHeight, frameId: FRAME_ID }, '*');
-        lastSentHeight = currentHeight;
-    };
-    setTimeout(sendHeight, FALLBACK_DELAY_MS);
-    window.addEventListener('load', sendHeight);
+    
+    function getAccurateHeight() {
+        const container = document.getElementById('main-container');
+        if (container) {
+            // Get height of container + bottom padding/margin
+            const rect = container.getBoundingClientRect();
+            return Math.ceil(rect.height) + 25; // +25px Buffer
+        }
+        return document.body.scrollHeight + 20;
+    }
+
+    function sendHeight() {
+        const h = getAccurateHeight();
+        window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
+    }
+
+    function triggerResizeSequence() {
+        sendHeight();
+        requestAnimationFrame(() => {
+            sendHeight();
+            setTimeout(sendHeight, 10);
+            setTimeout(sendHeight, 50);
+            setTimeout(sendHeight, 100);
+            setTimeout(sendHeight, 300);
+        });
+    }
 
 </script>
 </body>
