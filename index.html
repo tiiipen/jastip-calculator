@@ -29,12 +29,12 @@
         <p>Akhir dari Kalkulator Anda.</p>
     </div>
 
-   <script>
-    let finalHeightSent = false; // Flag untuk memastikan pengiriman final hanya sekali
+<script>
+    let lastSentHeight = 0; 
 
     // Fungsi untuk mendapatkan tinggi dokumen yang paling akurat dan MEMBULATKAN
     function getAccurateHeight() {
-        // PENTING: Gunakan Math.round() untuk mencegah nilai pecahan
+        // Gunakan Math.round() untuk mencegah nilai pecahan
         return Math.round(
             Math.max(
                 document.body.scrollHeight, 
@@ -49,38 +49,33 @@
 
     function sendHeight() {
         const currentHeight = getAccurateHeight();
+
+        // PENTING: Hanya kirim jika tingginya berubah (mencegah looping dari Taplink)
+        if (currentHeight === lastSentHeight && lastSentHeight !== 0) {
+             return; 
+        }
         
         // Kirim height ke Parent
         window.parent.postMessage({
             height: currentHeight,
             frameId: 'jastip-calculator-widget' 
         }, '*');
-
-        console.log('Tinggi dikirim: ' + currentHeight + 'px');
+        
+        lastSentHeight = currentHeight;
+        console.log('Tinggi FINAL dikirim (segera): ' + currentHeight + 'px');
     }
 
-    // --- KONTROL UTAMA: Menggunakan Timeout 3 Detik ---
-
-    function startFinalSend() {
-        if (finalHeightSent) return; // Hentikan jika sudah pernah dipanggil
-
-        // Tunggu 3 detik penuh sebelum mengukur dan mengirim height
-        // Dalam 3 detik, konten asinkron seharusnya sudah selesai dimuat.
-        setTimeout(() => {
-            sendHeight();
-            finalHeightSent = true;
-            console.log('Pengiriman height final Selesai setelah 3 detik.');
-        }, 3000); // Penundaan 3000 milidetik (3 detik)
-    }
+    // --- KONTROL UTAMA: Panggilan Setelah Load ---
     
-    // Panggil saat halaman dimuat (event load)
-    window.addEventListener('load', startFinalSend);
+    // 1. Panggil saat halaman dimuat (event load). Ini adalah panggilan utama yang andal.
+    window.addEventListener('load', sendHeight);
 
-    // Panggil saat ada perubahan ukuran jendela. Resize harus segera terjadi (tanpa delay)
+    // 2. Panggil saat ada perubahan ukuran jendela.
     window.addEventListener('resize', sendHeight); 
     
-    // Jaring pengaman tambahan: Panggil startFinalSend setelah 500ms
-    setTimeout(startFinalSend, 500); 
+    // 3. Jaring pengaman (berjalan setelah 50ms, bukan 3 detik)
+    // Ini membantu jika ada aset yang dimuat sangat cepat setelah event 'load'
+    setTimeout(sendHeight, 50); 
 </script>
 </body>
 </html>
