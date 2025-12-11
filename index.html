@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V2.9</title>
+    <title>Jastip Calculator V3.0</title>
     
     <style>
-    /* --- CSS BASIC --- */
+    /* --- CSS RESET (KRUSIAL UNTUK IFRAME) --- */
     * { box-sizing: border-box; }
     
-    /* Setup Body agar elastis */
-    html, body { 
-        margin: 0; 
-        padding: 0; 
-        width: 100%; 
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        /* PENTING: Jangan set height 100%, biarkan auto mengikuti konten */
         height: auto; 
-        min-height: 100%; 
-        background-color: #ffffff; 
-        overflow: hidden; /* Mencegah scrollbar internal iframe */
+        min-height: 0; 
+        background-color: #ffffff;
+        overflow: hidden; /* Paksa sembunyikan scrollbar internal */
     }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -32,9 +32,7 @@
         max-width: 450px;
         margin: 0 auto; 
         display: block;
-        position: relative;
-        /* Padding bawah ekstra untuk safety zone */
-        padding-bottom: 40px; 
+        padding-bottom: 20px;
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
@@ -140,7 +138,7 @@
 
 <div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 2.9 by Steven Alexander</p>
+    <p class="version-tag">Versi 3.0 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -326,7 +324,7 @@
     <hr>
     <button id="calculateButton" class="action-button">Kalkulasi</button>
     
-    <div id="result-container" class="detailed-breakdown">
+    <div class="detailed-breakdown">
         <div class="output-card">
             <div class="price-header">
                 <span id="sellingPriceLabel">Harga Jual Minimal</span>
@@ -384,12 +382,11 @@
 </div>
 
 <script>
-    // --- STATE VARIABLES ---
+    // --- STATE VARIABLES & HELPERS ---
     let currentShipping = 'handCarry';
     const modes = { profit: 'percent', handCarry: 'percent', other: 'percent' };
     const basis = { profit: 'modal', handCarry: 'modal', other: 'modal' };
 
-    // --- HELPER FUNCTIONS ---
     function formatCurrency(n) { return (isNaN(n)||n===null)?'Rp 0':new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Math.round(n)); }
     function formatNumber(n) { return (isNaN(n)||n===null)?'0':new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(Math.round(n)); }
     function formatDecimal(n, d=2) { return (isNaN(n)||n===null)?'0':n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:d}); }
@@ -407,9 +404,7 @@
         if(btn) btn.classList.add('active');
         document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
         document.getElementById('shippingDetailBox').style.display = 'none';
-        
-        // Resize Trigger
-        requestAnimationFrame(() => sendHeight());
+        triggerResizeSequence();
     }
 
     function setMode(type, mode) {
@@ -423,7 +418,7 @@
         let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
         if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
         else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
-        requestAnimationFrame(() => sendHeight());
+        triggerResizeSequence();
     }
 
     function toggleBasis(type, sel) {
@@ -433,11 +428,12 @@
         const jId = type === 'profit' ? 'profitCheckJual' : (type === 'hc' ? 'hcCheckJual' : 'otherCheckJual');
         if (sel === 'modal') { document.getElementById(mId).classList.add('checked'); document.getElementById(jId).classList.remove('checked'); } 
         else { document.getElementById(mId).classList.remove('checked'); document.getElementById(jId).classList.add('checked'); }
-        requestAnimationFrame(() => sendHeight());
+        triggerResizeSequence();
     }
 
-    // --- CALCULATION LOGIC ---
+    // --- MAIN CALCULATION ---
     function calculateJastip() {
+        // Calculation Logic (Identical to V2.8)
         const modalSource = getRawValue('modalPriceSource');
         const rate = getRawValue('exchangeRate');
         const modalIDR = modalSource * rate;
@@ -445,12 +441,8 @@
         let sellingPrice=0, profitAmount=0, shippingAmount=0, otherAmount=0, shipBaseAmount=0;
         
         const detailBox = document.getElementById('shippingDetailBox');
-        const elVol = document.getElementById('detailVolume');
-        const elRate = document.getElementById('detailRate');
-        const elWeight = document.getElementById('detailWeight');
-        const elFormula = document.getElementById('detailFormula');
-        
-        elVol.style.display = 'flex'; elWeight.style.display = 'flex';
+        const elVol = document.getElementById('detailVolume'), elRate = document.getElementById('detailRate'), elWeight = document.getElementById('detailWeight'), elFormula = document.getElementById('detailFormula');
+        elVol.style.display='flex'; elWeight.style.display='flex';
         
         if (currentShipping === 'handCarry') {
             detailBox.style.display = 'none';
@@ -538,7 +530,6 @@
         document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
         document.getElementById('kursOutput').textContent = formatCurrency(rate);
         
-        // Critical for resizing on calculate
         triggerResizeSequence();
     }
 
@@ -551,36 +542,44 @@
         ids.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', function(){formatInputNumber(this);}); });
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
         
-        // RESIZE OBSERVER (FIXED TARGET)
-        // Observe the main container, not just body
-        const container = document.getElementById('main-container');
-        const observer = new ResizeObserver(() => {
+        // --- NEW: RESIZE OBSERVER (BULLETPROOF) ---
+        const resizeObserver = new ResizeObserver(() => {
             triggerResizeSequence();
         });
-        observer.observe(container);
+        resizeObserver.observe(document.body); // Watch body
+        resizeObserver.observe(document.getElementById('main-container')); // Watch Container
         
         triggerResizeSequence();
     });
 
-    // --- RESIZE LOGIC (FIXED) ---
+    // --- RESIZE LOGIC (ANTI-CUTOFF) ---
     const FRAME_ID = 'jastip-calculator-widget';
     
+    function getAccurateHeight() {
+        var body = document.body;
+        var html = document.documentElement;
+        
+        // Strategy: Get max absolute height found
+        var height = Math.max(
+            body.scrollHeight, body.offsetHeight, 
+            html.clientHeight, html.scrollHeight, html.offsetHeight
+        );
+        // SAFETY BUFFER 30px
+        return height + 30;
+    }
+
     function sendHeight() {
-        // Measure the MAIN CONTAINER height explicitly + buffer
-        const container = document.getElementById('main-container');
-        if(container) {
-            const h = container.offsetHeight + 40; // 40px Buffer
-            window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
-        }
+        const h = getAccurateHeight();
+        window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
     }
 
     function triggerResizeSequence() {
         sendHeight();
-        // Fire multiple times to catch animation/DOM reflow
-        setTimeout(sendHeight, 10);
-        setTimeout(sendHeight, 50);
-        setTimeout(sendHeight, 100);
-        setTimeout(sendHeight, 300);
+        requestAnimationFrame(() => {
+            sendHeight();
+            setTimeout(sendHeight, 50);
+            setTimeout(sendHeight, 200);
+        });
     }
 
 </script>
