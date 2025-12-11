@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V3.1</title>
+    <title>Jastip Calculator V3.2</title>
     
     <style>
     /* --- CSS RESET --- */
@@ -14,14 +14,15 @@
         padding: 0;
         width: 100%;
         height: auto; 
-        min-height: 0; 
-        background-color: #ffffff;
+        min-height: 100%; 
+        background-color: #ffffff; /* Background Putih Full */
+        overflow: hidden; /* Mencegah scrollbar ganda */
     }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
-    /* Main Container */
+    /* Main Container tanpa jarak */
     .calculator-container {
         font-family: Arial, sans-serif;
         background-color: #ffffff;
@@ -30,12 +31,13 @@
         max-width: 450px;
         margin: 0 auto; 
         display: block;
-        padding-bottom: 30px; /* Extra buffer bawah */
+        position: relative;
+        padding-bottom: 40px; /* Buffer aman bawah */
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
-    .version-tag { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: -10px; margin-bottom: 25px; }
-    h2 { color: #333; text-align: center; margin-bottom: 20px; margin-top: 10px; }
+    .version-tag { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: -5px; margin-bottom: 25px; }
+    h2 { color: #333; text-align: center; margin-bottom: 20px; margin-top: 5px; }
     
     .input-group { margin-bottom: 25px; }
     .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #000000; font-size: 1em; }
@@ -106,8 +108,8 @@
     .output-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     
     .price-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .price-header span { font-size: 0.95em; color: #555; }
-    .price-header strong { font-size: 1em; color: #4CAF50; font-weight: bold; }
+    .price-header span { font-size: 1.1em; color: #333; font-weight: bold; }
+    .price-header strong { font-size: 1.2em; color: #4CAF50; font-weight: bold; }
 
     .separator-dashed { border-bottom: 1px dashed #ddd; margin: 10px 0; }
     .separator-solid { border-bottom: 2px solid #f0f0f0; margin: 15px 0; }
@@ -136,7 +138,7 @@
 
 <div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 3.1 by Steven Alexander</p>
+    <p class="version-tag">Versi 3.2 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -380,22 +382,27 @@
 </div>
 
 <script>
-    // --- RESIZE SYSTEM (CORE FIX) ---
+    // --- RESIZE SYSTEM (BURST MODE) ---
     const FRAME_ID = 'jastip-calculator-widget';
     
-    // Fungsi pengirim pesan utama
     function sendHeight() {
-        const h = document.body.scrollHeight + 30; // +30 Buffer aman
-        window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
+        const container = document.getElementById('main-container');
+        if(container) {
+            // Mengukur container + buffer 40px
+            const h = container.offsetHeight + 40; 
+            window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
+        }
     }
 
-    // Fungsi pemanggil beruntun (Burst) untuk menangkap animasi
+    // Panggil ini saat apapun terjadi (klik, input, dll)
     function triggerResizeSequence() {
         sendHeight();
-        setTimeout(sendHeight, 20);
+        // Burst signals untuk menangkap animasi
+        setTimeout(sendHeight, 10);
         setTimeout(sendHeight, 50);
         setTimeout(sendHeight, 100);
-        setTimeout(sendHeight, 300); // Akhir animasi
+        setTimeout(sendHeight, 200);
+        setTimeout(sendHeight, 500); 
     }
 
     // --- STATE & HELPERS ---
@@ -411,7 +418,7 @@
     function setupSync(sId, iId) { const s=document.getElementById(sId), i=document.getElementById(iId); if(s&&i){ s.addEventListener('input',()=>{i.value=s.value;}); i.addEventListener('input',()=>{let v=parseFloat(i.value); if(v>s.max)v=s.max; if(v<s.min)v=s.min; s.value=v;}); } }
     function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); triggerResizeSequence(); }
 
-    // --- UI ACTIONS (WITH RESIZE TRIGGERS) ---
+    // --- UI ACTIONS ---
     function selectShipping(method) {
         currentShipping = method;
         document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('active'));
@@ -421,8 +428,7 @@
         document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
         document.getElementById('shippingDetailBox').style.display = 'none';
         
-        // PENTING: Panggil Resize saat tab berubah
-        triggerResizeSequence();
+        triggerResizeSequence(); // FORCE TRIGGER
     }
 
     function setMode(type, mode) {
@@ -431,14 +437,11 @@
         let parent = document.querySelector(`#${wrapId}`).closest('.input-group');
         parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
-        
         let p = document.getElementById(type === 'profit' ? 'profit-percent-wrapper' : type === 'handCarry' ? 'hc-percent-wrapper' : 'other-percent-wrapper');
         let f = document.getElementById(type === 'profit' ? 'profit-fixed-wrapper' : type === 'handCarry' ? 'hc-fixed-wrapper' : 'other-fixed-wrapper');
         let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
-
         if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
         else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
-        
         triggerResizeSequence();
     }
 
@@ -452,6 +455,7 @@
         triggerResizeSequence();
     }
 
+    // --- CALCULATION ---
     function calculateJastip() {
         const modalSource = getRawValue('modalPriceSource');
         const rate = getRawValue('exchangeRate');
@@ -549,10 +553,10 @@
         document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
         document.getElementById('kursOutput').textContent = formatCurrency(rate);
         
-        // PENTING: Panggil Resize setelah kalkulasi selesai
-        triggerResizeSequence();
+        triggerResizeSequence(); // FORCE TRIGGER
     }
 
+    // --- INIT ---
     document.addEventListener('DOMContentLoaded', () => {
         setupSync('profitMarginSlider', 'profitMargin');
         setupSync('hcRateSlider', 'hcRate');
@@ -561,9 +565,14 @@
         ids.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', function(){formatInputNumber(this);}); });
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
         
-        // Setup MutationObserver (Backup Listener)
-        const observer = new MutationObserver(() => triggerResizeSequence());
-        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        // --- ADDED GLOBAL CLICK LISTENER ---
+        // Ini memastikan setiap klik di manapun akan memicu cek ukuran
+        document.addEventListener('click', triggerResizeSequence);
+
+        // --- OBSERVER ---
+        const observer = new ResizeObserver(() => triggerResizeSequence());
+        const container = document.getElementById('main-container');
+        if(container) observer.observe(container);
         
         triggerResizeSequence();
     });
