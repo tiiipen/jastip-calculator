@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V2.6</title>
+    <title>Jastip Calculator V2.7</title>
     
     <style>
     /* --- CSS BASIC --- */
     * { box-sizing: border-box; }
     
-    /* Background Body Putih */
+    /* Background Body Putih & No Margin */
     body { margin: 0 !important; padding: 0 !important; width: 100%; overflow-x: hidden; background-color: #ffffff; }
-    
+    html { height: auto; min-height: 100%; }
+
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
@@ -25,6 +26,7 @@
         margin: 0 auto; 
         border-radius: 0; 
         box-shadow: none; 
+        padding-bottom: 30px; /* Extra padding bawah agar aman */
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
@@ -130,7 +132,7 @@
 
 <div class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 2.6 by Steven Alexander</p>
+    <p class="version-tag">Versi 2.7 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -440,10 +442,9 @@
         document.getElementById(map[method]).classList.add('active');
         document.getElementById('shippingDetailBox').style.display = 'none';
         
-        // Multiple resize signals to handle animation smooth transition
+        // Manual triggers just in case, though Observer handles it
         sendHeight(); 
-        setTimeout(sendHeight, 50);
-        setTimeout(sendHeight, 300);
+        setTimeout(sendHeight, 100);
     }
 
     function setMode(type, mode) {
@@ -494,7 +495,6 @@
         let profitAmount = 0;
         let shippingAmount = 0;
         let otherAmount = 0;
-        
         let shipBaseAmount = 0;
         
         const detailBox = document.getElementById('shippingDetailBox');
@@ -657,6 +657,7 @@
         sendHeight();
     }
 
+    // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
         setupSync('profitMarginSlider', 'profitMargin');
         setupSync('hcRateSlider', 'hcRate');
@@ -669,8 +670,16 @@
         });
 
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
+        
+        // --- NEW: RESIZE OBSERVER (The Automatic Solution) ---
+        // Ini akan memantau perubahan ukuran body secara otomatis
+        // Kapanpun "Rincian Biaya" muncul/hilang, ini akan mengirim sinyal
+        const resizeObserver = new ResizeObserver(() => {
+            sendHeight();
+        });
+        resizeObserver.observe(document.body);
+
         sendHeight();
-        window.addEventListener('resize', sendHeight);
     });
 
     let lastSentHeight = 0;
