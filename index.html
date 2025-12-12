@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V3.5 (Force Height)</title>
+    <title>Jastip Calculator V3.6 Final</title>
     
     <style>
     /* --- CSS RESET --- */
@@ -16,6 +16,7 @@
         height: auto; 
         min-height: 100%; 
         background-color: #ffffff;
+        overflow: hidden; 
     }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -31,7 +32,7 @@
         margin: 0 auto; 
         display: block;
         position: relative;
-        padding-bottom: 20px;
+        padding-bottom: 25px; /* Buffer aman bawah */
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
@@ -137,7 +138,7 @@
 
 <div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 3.5 (TEST FORCE HEIGHT)</p>
+    <p class="version-tag">Versi 3.6 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -381,22 +382,17 @@
 </div>
 
 <script>
-    // --- RESIZE SYSTEM (FORCE TEST 500PX) ---
+    // --- RESIZE SYSTEM (PRODUCTION MODE) ---
     const FRAME_ID = 'jastip-calculator-widget';
-    let extraBuffer = 0; // Buffer tambahan untuk tes
-
+    
     function getAccurateHeight() {
-        var body = document.body;
-        var html = document.documentElement;
-        
-        // Ukur tinggi dokumen secara menyeluruh
-        var height = Math.max(
-            body.scrollHeight, body.offsetHeight, 
-            html.clientHeight, html.scrollHeight, html.offsetHeight
-        );
-        
-        // Tambahkan buffer standar (40px) + Buffer Tambahan dari tombol
-        return height + 40 + extraBuffer;
+        // Measure main container height + padding/margin buffer
+        const container = document.getElementById('main-container');
+        if(container) {
+            // +30px safety buffer
+            return container.offsetHeight + 30; 
+        }
+        return document.body.scrollHeight + 30;
     }
 
     function sendHeight() {
@@ -406,8 +402,10 @@
 
     function triggerResizeSequence() {
         sendHeight();
+        // Burst signals to catch any animation delay
+        setTimeout(sendHeight, 20);
         setTimeout(sendHeight, 50);
-        setTimeout(sendHeight, 150);
+        setTimeout(sendHeight, 100);
         setTimeout(sendHeight, 300);
         setTimeout(sendHeight, 500); 
     }
@@ -425,7 +423,7 @@
     function setupSync(sId, iId) { const s=document.getElementById(sId), i=document.getElementById(iId); if(s&&i){ s.addEventListener('input',()=>{i.value=s.value;}); i.addEventListener('input',()=>{let v=parseFloat(i.value); if(v>s.max)v=s.max; if(v<s.min)v=s.min; s.value=v;}); } }
     function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); triggerResizeSequence(); }
 
-    // --- UI LOGIC (Modified for Test) ---
+    // --- UI ACTIONS ---
     function selectShipping(method) {
         currentShipping = method;
         document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('active'));
@@ -434,13 +432,6 @@
         if(btn) btn.classList.add('active');
         document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
         document.getElementById('shippingDetailBox').style.display = 'none';
-        
-        // --- LOGIC TES: Jika Air/Sea dipencet, paksa tambah 500px ---
-        if (method === 'airFreight' || method === 'seaFreight') {
-            extraBuffer = 500; 
-        } else {
-            extraBuffer = 0; // Hand carry normal
-        }
         
         triggerResizeSequence();
     }
@@ -456,6 +447,7 @@
         let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
         if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
         else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
+        
         triggerResizeSequence();
     }
 
@@ -469,8 +461,8 @@
         triggerResizeSequence();
     }
 
+    // --- CALCULATION LOGIC ---
     function calculateJastip() {
-        // ... (Logic Kalkulasi Standar V3.4) ...
         const modalSource = getRawValue('modalPriceSource');
         const rate = getRawValue('exchangeRate');
         const modalIDR = modalSource * rate;
@@ -567,7 +559,7 @@
         document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
         document.getElementById('kursOutput').textContent = formatCurrency(rate);
         
-        triggerResizeSequence();
+        triggerResizeSequence(); // Panggil resize setelah konten berubah
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -579,12 +571,12 @@
         
         document.getElementById('calculateButton').addEventListener('click', calculateJastip);
         
-        // --- RESIZE OBSERVER (AUTO WATCHER) ---
+        // --- AUTO RESIZE WATCHER ---
         const observer = new ResizeObserver(() => triggerResizeSequence());
         const container = document.getElementById('main-container');
         if(container) observer.observe(container);
         
-        // --- GLOBAL CLICK TRIGGER ---
+        // --- GLOBAL CLICK TRIGGER (Backup) ---
         document.addEventListener('click', triggerResizeSequence);
         
         triggerResizeSequence();
