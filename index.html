@@ -3,31 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Calculator V3.3 DEBUG</title>
+    <title>Jastip Calculator V3.4</title>
     
     <style>
     /* --- CSS RESET --- */
     * { box-sizing: border-box; }
     
     html, body {
-        margin: 0; padding: 0; width: 100%; height: auto; min-height: 100%; 
-        background-color: #ffffff; overflow: hidden; 
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: auto; 
+        min-height: 100%; 
+        background-color: #ffffff;
     }
 
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
+    /* Main Container */
     .calculator-container {
         font-family: Arial, sans-serif;
         background-color: #ffffff;
         padding: 20px;
-        width: 100%; max-width: 450px; margin: 0 auto; 
-        display: block; position: relative; padding-bottom: 40px; 
+        width: 100%; 
+        max-width: 450px;
+        margin: 0 auto; 
+        display: block;
+        position: relative;
+        padding-bottom: 20px;
     }
 
     p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
-    .version-tag { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: -5px; margin-bottom: 25px; }
-    h2 { color: #333; text-align: center; margin-bottom: 20px; margin-top: 5px; }
+    .version-tag { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: -10px; margin-bottom: 25px; }
+    h2 { color: #333; text-align: center; margin-bottom: 20px; margin-top: 10px; }
     
     .input-group { margin-bottom: 25px; }
     .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #000000; font-size: 1em; }
@@ -35,10 +44,16 @@
     .calculator-input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1em; width: 100%; }
     .percentage-input { width: 80px; text-align: right; font-weight: bold; }
 
-    .slider-input { flex-grow: 1; height: 10px; -webkit-appearance: none; background: #e0e0e0; border-radius: 5px; cursor: pointer; padding: 0; }
-    .slider-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #4CAF50; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+    /* Slider Styling */
+    .slider-input {
+        flex-grow: 1; height: 10px; -webkit-appearance: none; background: #e0e0e0; border-radius: 5px; cursor: pointer; padding: 0;
+    }
+    .slider-input::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #4CAF50; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
     .slider-min-max { font-size: 0.8em; color: #999; margin-top: 5px; text-align: left; }
 
+    /* Button Styling */
     .action-button {
         width: 100%; padding: 12px; background-color: #4CAF50; color: white; font-size: 1.1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; margin-top: 15px;
     }
@@ -46,13 +61,21 @@
 
     hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
 
+    /* --- Shipping Tabs --- */
     .shipping-options { display: flex; gap: 10px; margin-bottom: 15px; }
-    .shipping-option { flex: 1; text-align: center; padding: 10px 5px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.9em; background: #fff; transition: all 0.2s; font-weight: bold; color: #777; }
-    .shipping-option.active { background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3); }
+    .shipping-option {
+        flex: 1; text-align: center; padding: 10px 5px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.9em; background: #fff; transition: all 0.2s; font-weight: bold; color: #777;
+    }
+    .shipping-option.active {
+        background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+    }
 
-    .method-container { display: none; padding: 15px; background: #fcfcfc; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
+    .method-container {
+        display: none; padding: 15px; background: #fcfcfc; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px;
+    }
     .method-container.active { display: block; animation: fadeIn 0.3s; }
 
+    /* --- Toggle Switch --- */
     .toggle-wrapper { display: flex; justify-content: flex-end; margin-bottom: 5px; align-items: center; }
     .toggle-switch { display: flex; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
     .toggle-btn { padding: 4px 10px; font-size: 0.8em; cursor: pointer; background: #f0f0f0; min-width: 40px; text-align: center; }
@@ -62,13 +85,24 @@
     .dimension-input { width: 100%; text-align: center; }
     .dimension-separator { font-weight: bold; color: #999; }
 
-    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; }
-    .checkbox-wrapper.no-border { margin-top: 8px; padding-top: 0; border-top: none; }
-    .custom-checkbox { width: 18px; height: 18px; border: 2px solid #4CAF50; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0; }
+    /* --- CHECKBOX STYLES --- */
+    .checkbox-wrapper {
+        display: flex; align-items: center; gap: 10px; cursor: pointer;
+        margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee;
+    }
+    .checkbox-wrapper.no-border {
+        margin-top: 8px; padding-top: 0; border-top: none;
+    }
+
+    .custom-checkbox {
+        width: 18px; height: 18px; border: 2px solid #4CAF50; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0;
+    }
     .custom-checkbox.checked { background: #4CAF50; }
     .custom-checkbox.checked::after { content: '✔'; color: white; font-size: 12px; }
+    
     .checkbox-label { font-size: 0.9em; color: #555; cursor: pointer; user-select: none; font-weight: normal; }
 
+    /* --- Output Section Styles --- */
     .detailed-breakdown { margin-top: 25px; padding: 0; background: transparent; border: none; }
     .output-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     
@@ -83,7 +117,12 @@
     .profit-row { color: #333; font-weight: bold; padding-top: 5px; }
     .profit-row strong { color: #FF9800; }
     
-    .shipping-detail-box { display: none; margin-top: 20px; padding: 12px; background-color: #f5f5f5; border: 1px solid #eee; border-radius: 6px; font-size: 0.9em; color: #333; }
+    .shipping-detail-box { 
+        display: none; margin-top: 20px; padding: 12px; 
+        background-color: #f5f5f5; 
+        border: 1px solid #eee; 
+        border-radius: 6px; font-size: 0.9em; color: #333; 
+    }
     .shipping-detail-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 8px; color: #000000; }
     .shipping-detail-row { margin-bottom: 4px; display: flex; justify-content: space-between; }
     .shipping-formula-row { margin-top: 8px; font-weight: normal; padding-top: 8px; border-top: 1px dashed #ccc; }
@@ -98,7 +137,7 @@
 
 <div id="main-container" class="calculator-container">
     <h2>Jastip Calculator</h2>
-    <p class="version-tag">Versi 3.3 DEBUG MODE</p>
+    <p class="version-tag">Versi 3.4 by Steven Alexander</p>
     <hr>
     
     <div class="input-group">
@@ -111,4 +150,431 @@
     <div class="input-group">
         <label for="exchangeRate">Kurs ke IDR</label>
         <div class="input-row">
-            <input type="
+            <input type="text" inputmode="numeric" id="exchangeRate" class="calculator-input" placeholder="Contoh: 3500">
+        </div>
+        <p class="slider-min-max">Nilai tukar 1 Mata Uang Asing ke Rupiah</p>
+    </div>
+
+    <div class="input-group slider-group">
+        <div class="toggle-wrapper">
+             <label style="margin-right: auto; font-weight: bold;">Profit Margin / Jasa Titip</label>
+            <div class="toggle-switch">
+                <div class="toggle-btn active" data-mode="percent" onclick="setMode('profit', 'percent')">%</div>
+                <div class="toggle-btn" data-mode="fixed" onclick="setMode('profit', 'fixed')">Rp</div>
+            </div>
+        </div>
+        <div id="profit-percent-wrapper" class="input-row">
+            <input type="range" id="profitMarginSlider" class="calculator-input slider-input" min="0" max="100" step="1" value="20">
+            <input type="number" id="profitMargin" class="calculator-input percentage-input" value="20">
+        </div>
+        <div id="profit-fixed-wrapper" class="input-row" style="display: none;">
+            <input type="text" inputmode="numeric" id="profitMarginFixed" class="calculator-input" placeholder="Nominal Profit (Rp)">
+        </div>
+        
+        <div id="profitBasisOptions">
+            <div class="checkbox-wrapper" onclick="toggleBasis('profit', 'modal')">
+                <div id="profitCheckModal" class="custom-checkbox checked"></div>
+                <span class="checkbox-label">Dihitung Dari Harga Modal</span>
+            </div>
+            <div class="checkbox-wrapper no-border" onclick="toggleBasis('profit', 'jual')">
+                <div id="profitCheckJual" class="custom-checkbox"></div>
+                <span class="checkbox-label">Dihitung Dari Harga Jual</span>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <label style="font-weight: bold; display: block; margin-bottom: 10px;">Metode Pengiriman</label>
+    <div class="shipping-options">
+        <div class="shipping-option active" data-value="handCarry" onclick="selectShipping('handCarry')">Hand Carry</div>
+        <div class="shipping-option" data-value="airFreight" onclick="selectShipping('airFreight')">Air Freight</div>
+        <div class="shipping-option" data-value="seaFreight" onclick="selectShipping('seaFreight')">Sea Freight</div>
+    </div>
+
+    <div id="methodHandCarry" class="method-container active">
+        <div class="input-group">
+            <div class="toggle-wrapper">
+                <label style="margin-right: auto; font-weight: bold;">Biaya Hand Carry</label>
+                <div class="toggle-switch">
+                    <div class="toggle-btn active" data-mode="percent" onclick="setMode('handCarry', 'percent')">%</div>
+                    <div class="toggle-btn" data-mode="fixed" onclick="setMode('handCarry', 'fixed')">Rp</div>
+                </div>
+            </div>
+            
+            <div id="hc-percent-wrapper" class="input-row">
+                <input type="range" id="hcRateSlider" class="calculator-input slider-input" min="0" max="100" step="1" value="10">
+                <input type="number" id="hcRate" class="calculator-input percentage-input" value="10">
+            </div>
+            <div id="hc-fixed-wrapper" class="input-row" style="display: none;">
+                <input type="text" inputmode="numeric" id="hcFixed" class="calculator-input" placeholder="Nominal Biaya (Rp)">
+            </div>
+
+            <div id="hcBasisOptions">
+                <div class="checkbox-wrapper" onclick="toggleBasis('hc', 'modal')">
+                    <div id="hcCheckModal" class="custom-checkbox checked"></div>
+                    <span class="checkbox-label">Dihitung Dari Harga Modal</span>
+                </div>
+                <div class="checkbox-wrapper no-border" onclick="toggleBasis('hc', 'jual')">
+                    <div id="hcCheckJual" class="custom-checkbox"></div>
+                    <span class="checkbox-label">Dihitung Dari Harga Jual</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="methodAirFreight" class="method-container">
+        <div class="input-group">
+            <label>Harga per Kilogram (Rp)</label>
+            <input type="text" inputmode="numeric" id="airPricePerKg" class="calculator-input" placeholder="Rp / Kg">
+        </div>
+        <div class="input-group">
+            <label>Berat Barang (Kg)</label>
+            <input type="number" id="airWeight" class="calculator-input" placeholder="0.0">
+        </div>
+        <div class="input-group">
+            <label>Dimensi (cm)</label>
+            <div class="dimension-group">
+                <input type="number" id="airP" class="calculator-input dimension-input" placeholder="P">
+                <span class="dimension-separator">x</span>
+                <input type="number" id="airL" class="calculator-input dimension-input" placeholder="L">
+                <span class="dimension-separator">x</span>
+                <input type="number" id="airT" class="calculator-input dimension-input" placeholder="T">
+            </div>
+        </div>
+        <div class="checkbox-wrapper" onclick="toggleCheckbox('airCalcCheckbox')">
+            <div id="airCalcCheckbox" class="custom-checkbox checked"></div>
+            <span class="checkbox-label">Gunakan Biaya Tertinggi (Berat Aktual vs Volume)</span>
+        </div>
+    </div>
+
+    <div id="methodSeaFreight" class="method-container">
+        <div class="input-group">
+            <label>Harga per CBM (Rp)</label>
+            <input type="text" inputmode="numeric" id="seaPricePerCBM" class="calculator-input" placeholder="Rp / CBM">
+        </div>
+        
+        <div class="input-group">
+            <label>Minimal CBM (Opsional)</label>
+            <div class="input-row">
+                <input type="number" id="seaMinCBM" class="calculator-input" placeholder="0.1">
+            </div>
+            <p class="slider-min-max">Jika volume barang di bawah ini, akan dihitung sesuai minimal</p>
+        </div>
+
+        <div class="input-group">
+            <label>Berat Barang (Kg) <small style="font-weight:normal; color:#888;">*Opsional</small></label>
+            <input type="number" id="seaWeight" class="calculator-input" placeholder="0.0">
+        </div>
+        <div class="input-group">
+            <label>Dimensi (cm)</label>
+            <div class="dimension-group">
+                <input type="number" id="seaP" class="calculator-input dimension-input" placeholder="P">
+                <span class="dimension-separator">x</span>
+                <input type="number" id="seaL" class="calculator-input dimension-input" placeholder="L">
+                <span class="dimension-separator">x</span>
+                <input type="number" id="seaT" class="calculator-input dimension-input" placeholder="T">
+            </div>
+            <p class="slider-min-max">Otomatis konversi cm³ ke CBM (1 Juta cm³ = 1 CBM)</p>
+        </div>
+        <div class="checkbox-wrapper" onclick="toggleCheckbox('seaCalcCheckbox')">
+            <div id="seaCalcCheckbox" class="custom-checkbox checked"></div>
+            <span class="checkbox-label">Gunakan Biaya Tertinggi (Berat Aktual vs CBM)</span>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <div class="toggle-wrapper">
+             <label style="margin-right: auto; font-weight: bold;">Biaya Lainnya</label>
+            <div class="toggle-switch">
+                <div class="toggle-btn active" data-mode="percent" onclick="setMode('other', 'percent')">%</div>
+                <div class="toggle-btn" data-mode="fixed" onclick="setMode('other', 'fixed')">Rp</div>
+            </div>
+        </div>
+       
+        <div id="other-percent-wrapper" class="input-row">
+            <input type="range" id="otherRateSlider" class="calculator-input slider-input" min="0" max="50" step="0.5" value="0">
+            <input type="number" id="otherRate" class="calculator-input percentage-input" value="0">
+        </div>
+        <div id="other-fixed-wrapper" class="input-row" style="display: none;">
+            <input type="text" inputmode="numeric" id="otherFixed" class="calculator-input" placeholder="0">
+        </div>
+
+        <div id="otherBasisOptions">
+            <div class="checkbox-wrapper" onclick="toggleBasis('other', 'modal')">
+                <div id="otherCheckModal" class="custom-checkbox checked"></div>
+                <span class="checkbox-label">Dihitung Dari Harga Modal</span>
+            </div>
+            <div class="checkbox-wrapper no-border" onclick="toggleBasis('other', 'jual')">
+                <div id="otherCheckJual" class="custom-checkbox"></div>
+                <span class="checkbox-label">Dihitung Dari Harga Jual</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="actualPriceInput">Harga Jual Aktual (Rp)</label>
+        <div class="input-row">
+            <input type="text" inputmode="numeric" id="actualPriceInput" class="calculator-input" value="0">
+        </div>
+        <p class="slider-min-max">Isi untuk menghitung profit aktual (mengabaikan % profit margin di atas)</p>
+    </div>
+
+    <hr>
+    <button id="calculateButton" class="action-button">Kalkulasi</button>
+    
+    <div class="detailed-breakdown">
+        <div class="output-card">
+            <div class="price-header">
+                <span id="sellingPriceLabel">Harga Jual Minimal</span>
+                <strong id="minSellingPriceOutput">Rp 0</strong>
+            </div>
+            
+            <div class="separator-dashed"></div>
+
+            <div class="detail-row">
+                <span>Harga Modal (IDR)</span>
+                <strong id="modalIDROutput">Rp 0</strong>
+            </div>
+            <div class="detail-row">
+                <span id="shippingLabelOutput">Biaya Shipping</span>
+                <strong id="shippingCostOutput">Rp 0</strong>
+            </div>
+            <div class="detail-row">
+                <span>Biaya Lainnya</span>
+                <strong id="otherCostOutput">Rp 0</strong>
+            </div>
+
+            <div class="separator-dashed"></div>
+
+            <div class="detail-row profit-row">
+                <span>Profit Margin / Keuntungan</span>
+                <strong id="profitAmountOutput">Rp 0</strong>
+            </div>
+
+            <div class="separator-solid"></div>
+
+            <div id="shippingDetailBox" class="shipping-detail-box">
+                <div class="shipping-detail-title">Rincian Biaya Pengiriman</div>
+                <div class="shipping-detail-row" id="detailVolume">Volume : -</div>
+                <div class="shipping-detail-row" id="detailRate">Biaya Per CBM = -</div>
+                <div class="shipping-detail-row" id="detailWeight">Berat Aktual = -</div>
+                <div class="shipping-formula-row" id="detailFormula">
+                    Biaya Pengiriman : <br>
+                    [ Rumus ] = Rp 0
+                </div>
+            </div>
+
+            <div class="modal-info-box">
+                <span class="modal-info-title">Rincian Harga Modal</span>
+                <div class="detail-row" style="padding: 2px 0;">
+                    <span>Harga Modal (Asing)</span>
+                    <strong id="modalSourceOutput" style="color: #666;">0</strong>
+                </div>
+                <div class="detail-row" style="padding: 2px 0;">
+                    <span>Kurs</span>
+                    <strong id="kursOutput" style="color: #666;">Rp 0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- STATE VARIABLES ---
+    let currentShipping = 'handCarry';
+    const modes = { profit: 'percent', handCarry: 'percent', other: 'percent' };
+    const basis = { profit: 'modal', handCarry: 'modal', other: 'modal' };
+
+    // --- HELPER FUNCTIONS ---
+    function formatCurrency(n) { return (isNaN(n)||n===null)?'Rp 0':new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Math.round(n)); }
+    function formatNumber(n) { return (isNaN(n)||n===null)?'0':new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(Math.round(n)); }
+    function formatDecimal(n, d=2) { return (isNaN(n)||n===null)?'0':n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+    function getRawValue(id) { const el=document.getElementById(id); return !el?0:(parseFloat(el.value.replace(/\./g,'').replace(/,/g,''))||0); }
+    function formatInputNumber(el) { let v=el.value.replace(/\./g,'').replace(/,/g,''); if(v){ el.value=new Intl.NumberFormat('id-ID',{minimumFractionDigits:0}).format(parseFloat(v)); }else{el.value='';} }
+    function setupSync(sId, iId) { const s=document.getElementById(sId), i=document.getElementById(iId); if(s&&i){ s.addEventListener('input',()=>{i.value=s.value;}); i.addEventListener('input',()=>{let v=parseFloat(i.value); if(v>s.max)v=s.max; if(v<s.min)v=s.min; s.value=v;}); } }
+    function toggleCheckbox(id) { document.getElementById(id).classList.toggle('checked'); triggerResizeSequence(); }
+
+    // --- RESIZE SYSTEM (AUTO UPDATE) ---
+    const FRAME_ID = 'jastip-calculator-widget';
+    
+    function sendHeight() {
+        const container = document.getElementById('main-container');
+        if(container) {
+            // Ukur tinggi container + margin bawah
+            const h = container.offsetHeight + 40; 
+            window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
+        }
+    }
+
+    // Fungsi ini dipanggil setiap ada interaksi tombol
+    function triggerResizeSequence() {
+        // Kirim sinyal berulang kali untuk menangkap perubahan animasi
+        sendHeight();
+        setTimeout(sendHeight, 50);  // Tunggu 50ms (agar DOM update dulu)
+        setTimeout(sendHeight, 150);
+        setTimeout(sendHeight, 300);
+    }
+
+    // --- UI ACTIONS ---
+    function selectShipping(method) {
+        currentShipping = method;
+        document.querySelectorAll('.shipping-option').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.method-container').forEach(el => el.classList.remove('active'));
+        const btn = document.querySelector(`.shipping-option[data-value="${method}"]`);
+        if(btn) btn.classList.add('active');
+        document.getElementById({ 'handCarry': 'methodHandCarry', 'airFreight': 'methodAirFreight', 'seaFreight': 'methodSeaFreight' }[method]).classList.add('active');
+        document.getElementById('shippingDetailBox').style.display = 'none';
+        
+        triggerResizeSequence();
+    }
+
+    function setMode(type, mode) {
+        modes[type] = mode;
+        let wrapId = type === 'profit' ? 'profitMarginSlider' : type === 'handCarry' ? 'hcRateSlider' : 'otherRateSlider';
+        let parent = document.querySelector(`#${wrapId}`).closest('.input-group');
+        parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        let p = document.getElementById(type === 'profit' ? 'profit-percent-wrapper' : type === 'handCarry' ? 'hc-percent-wrapper' : 'other-percent-wrapper');
+        let f = document.getElementById(type === 'profit' ? 'profit-fixed-wrapper' : type === 'handCarry' ? 'hc-fixed-wrapper' : 'other-fixed-wrapper');
+        let bOpts = document.getElementById(type === 'profit' ? 'profitBasisOptions' : type === 'handCarry' ? 'hcBasisOptions' : 'otherBasisOptions');
+        if(mode === 'percent') { p.style.display = 'flex'; f.style.display = 'none'; if(bOpts) bOpts.style.display = 'block'; } 
+        else { p.style.display = 'none'; f.style.display = 'flex'; if(bOpts) bOpts.style.display = 'none'; }
+        
+        triggerResizeSequence();
+    }
+
+    function toggleBasis(type, sel) {
+        const key = type === 'hc' ? 'handCarry' : type;
+        basis[key] = sel;
+        const mId = type === 'profit' ? 'profitCheckModal' : (type === 'hc' ? 'hcCheckModal' : 'otherCheckModal');
+        const jId = type === 'profit' ? 'profitCheckJual' : (type === 'hc' ? 'hcCheckJual' : 'otherCheckJual');
+        if (sel === 'modal') { document.getElementById(mId).classList.add('checked'); document.getElementById(jId).classList.remove('checked'); } 
+        else { document.getElementById(mId).classList.remove('checked'); document.getElementById(jId).classList.add('checked'); }
+        triggerResizeSequence();
+    }
+
+    // --- CALCULATION ---
+    function calculateJastip() {
+        const modalSource = getRawValue('modalPriceSource');
+        const rate = getRawValue('exchangeRate');
+        const modalIDR = modalSource * rate;
+        const actualPrice = getRawValue('actualPriceInput');
+        let sellingPrice=0, profitAmount=0, shippingAmount=0, otherAmount=0, shipBaseAmount=0;
+        
+        const detailBox = document.getElementById('shippingDetailBox');
+        const elVol = document.getElementById('detailVolume'), elRate = document.getElementById('detailRate'), elWeight = document.getElementById('detailWeight'), elFormula = document.getElementById('detailFormula');
+        elVol.style.display='flex'; elWeight.style.display='flex';
+        
+        if (currentShipping === 'handCarry') {
+            detailBox.style.display = 'none';
+            if (modes.handCarry === 'fixed') shipBaseAmount = getRawValue('hcFixed');
+        } 
+        else if (currentShipping === 'airFreight') {
+            detailBox.style.display = 'block';
+            const pricePerKg = getRawValue('airPricePerKg');
+            const weight = parseFloat(document.getElementById('airWeight')?.value)||0;
+            const p = parseFloat(document.getElementById('airP')?.value)||0;
+            const l = parseFloat(document.getElementById('airL')?.value)||0;
+            const t = parseFloat(document.getElementById('airT')?.value)||0;
+            const volWeight = (p*l*t)/6000;
+            const useHighest = document.getElementById('airCalcCheckbox').classList.contains('checked');
+            if(volWeight===0) elVol.style.display='none';
+            let chargeableWeight = weight;
+            if(useHighest && volWeight>weight) chargeableWeight=volWeight;
+            else if(weight===0 && volWeight>0) chargeableWeight=volWeight;
+            shipBaseAmount = chargeableWeight * pricePerKg;
+            elVol.innerHTML=`Volume : ${p} x ${l} x ${t} / 6000 = <b>${formatDecimal(volWeight,2)} Kg</b>`;
+            elRate.innerHTML=`Biaya Per Kg = ${formatCurrency(pricePerKg)}`;
+            elWeight.innerHTML=`Berat Aktual = ${formatDecimal(weight,2)} Kg`;
+            elFormula.innerHTML=`Biaya Pengiriman : <br> ${formatDecimal(chargeableWeight,2)} Kg x ${formatCurrency(pricePerKg)} = ${formatCurrency(shipBaseAmount)}`;
+        } 
+        else if (currentShipping === 'seaFreight') {
+            detailBox.style.display = 'block';
+            const pricePerCBM = getRawValue('seaPricePerCBM');
+            const weight = parseFloat(document.getElementById('seaWeight')?.value)||0;
+            const p = parseFloat(document.getElementById('seaP')?.value)||0;
+            const l = parseFloat(document.getElementById('seaL')?.value)||0;
+            const t = parseFloat(document.getElementById('seaT')?.value)||0;
+            const volumeCBM = (p*l*t)/1000000;
+            const weightEquivalentCBM = weight/1000;
+            const useHighest = document.getElementById('seaCalcCheckbox').classList.contains('checked');
+            const minCBM = parseFloat(document.getElementById('seaMinCBM')?.value)||0;
+            if(weight===0) elWeight.style.display='none';
+            let chargeableCBM = volumeCBM;
+            if(useHighest && weightEquivalentCBM>volumeCBM) chargeableCBM=weightEquivalentCBM;
+            if(minCBM>0 && chargeableCBM<minCBM) chargeableCBM=minCBM;
+            shipBaseAmount = chargeableCBM * pricePerCBM;
+            elVol.innerHTML=`Volume : ${p} x ${l} x ${t} = <b>${formatDecimal(volumeCBM,4)} CBM</b>`;
+            elRate.innerHTML=`Biaya Per CBM = ${formatCurrency(pricePerCBM)}`;
+            elWeight.innerHTML=`Berat Aktual = ${formatDecimal(weight,2)} Kg`;
+            elFormula.innerHTML=`Biaya Pengiriman : <br> ${formatDecimal(chargeableCBM,4)} CBM x ${formatCurrency(pricePerCBM)} = ${formatCurrency(shipBaseAmount)}`;
+        }
+
+        if (actualPrice > 0) {
+            document.getElementById('sellingPriceLabel').textContent = "Harga Jual Aktual";
+            sellingPrice = actualPrice;
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){
+                 if(basis.handCarry==='modal') shippingAmount=modalIDR*(parseFloat(document.getElementById('hcRate')?.value)/100);
+                 else shippingAmount=sellingPrice*(parseFloat(document.getElementById('hcRate')?.value)/100);
+            } else shippingAmount = shipBaseAmount;
+            if(modes.other==='fixed') otherAmount=getRawValue('otherFixed');
+            else {
+                const oPct=parseFloat(document.getElementById('otherRate')?.value)||0;
+                if(basis.other==='modal') otherAmount=modalIDR*(oPct/100); else otherAmount=sellingPrice*(oPct/100);
+            }
+            profitAmount = sellingPrice - modalIDR - shippingAmount - otherAmount;
+        } else {
+            document.getElementById('sellingPriceLabel').textContent = "Harga Jual Minimal";
+            let num=modalIDR, den=1;
+            if(modes.profit==='fixed') num+=getRawValue('profitMarginFixed');
+            else { const p=parseFloat(document.getElementById('profitMargin')?.value)||0; if(basis.profit==='modal') num+=modalIDR*(p/100); else den-=(p/100); }
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){ const h=parseFloat(document.getElementById('hcRate')?.value)||0; if(basis.handCarry==='modal') num+=modalIDR*(h/100); else den-=(h/100); }
+            else num+=shipBaseAmount;
+            if(modes.other==='fixed') num+=getRawValue('otherFixed');
+            else { const o=parseFloat(document.getElementById('otherRate')?.value)||0; if(basis.other==='modal') num+=modalIDR*(o/100); else den-=(o/100); }
+            if(den<=0){ document.getElementById('minSellingPriceOutput').textContent="Error (%)"; return; }
+            sellingPrice=num/den;
+            if(modes.profit==='percent'&&basis.profit==='jual') profitAmount=sellingPrice*(parseFloat(document.getElementById('profitMargin')?.value)/100);
+            else if(modes.profit==='percent') profitAmount=modalIDR*(parseFloat(document.getElementById('profitMargin')?.value)/100);
+            else profitAmount=getRawValue('profitMarginFixed');
+            if(currentShipping==='handCarry'&&modes.handCarry==='percent'){ if(basis.handCarry==='jual') shippingAmount=sellingPrice*(parseFloat(document.getElementById('hcRate')?.value)/100); else shippingAmount=modalIDR*(parseFloat(document.getElementById('hcRate')?.value)/100); }
+            else shippingAmount=shipBaseAmount;
+            if(modes.other==='percent'){ if(basis.other==='jual') otherAmount=sellingPrice*(parseFloat(document.getElementById('otherRate')?.value)/100); else otherAmount=modalIDR*(parseFloat(document.getElementById('otherRate')?.value)/100); }
+            else otherAmount=getRawValue('otherFixed');
+        }
+
+        document.getElementById('minSellingPriceOutput').textContent = formatCurrency(sellingPrice);
+        document.getElementById('modalIDROutput').textContent = formatCurrency(modalIDR);
+        document.getElementById('shippingCostOutput').textContent = formatCurrency(shippingAmount);
+        document.getElementById('otherCostOutput').textContent = formatCurrency(otherAmount);
+        document.getElementById('profitAmountOutput').textContent = formatCurrency(profitAmount);
+        document.getElementById('modalSourceOutput').textContent = formatNumber(modalSource);
+        document.getElementById('kursOutput').textContent = formatCurrency(rate);
+        
+        triggerResizeSequence(); // Pastikan dipanggil setelah render selesai
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupSync('profitMarginSlider', 'profitMargin');
+        setupSync('hcRateSlider', 'hcRate');
+        setupSync('otherRateSlider', 'otherRate');
+        const ids = ['modalPriceSource', 'exchangeRate', 'profitMarginFixed', 'hcFixed', 'otherFixed', 'airPricePerKg', 'seaPricePerCBM', 'actualPriceInput'];
+        ids.forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', function(){formatInputNumber(this);}); });
+        
+        document.getElementById('calculateButton').addEventListener('click', calculateJastip);
+        
+        // --- RESIZE OBSERVER (AUTO WATCHER) ---
+        const observer = new ResizeObserver(() => triggerResizeSequence());
+        const container = document.getElementById('main-container');
+        if(container) observer.observe(container);
+        
+        // --- GLOBAL CLICK TRIGGER (BACKUP) ---
+        document.addEventListener('click', triggerResizeSequence);
+        
+        triggerResizeSequence();
+    });
+
+</script>
+</body>
+</html>
