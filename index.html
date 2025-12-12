@@ -411,9 +411,9 @@
     function triggerResizeSequence() {
         // Kirim sinyal berulang kali untuk menangkap perubahan animasi
         sendHeight();
-        setTimeout(sendHeight, 50);  // Tunggu 50ms (agar DOM update dulu)
-        setTimeout(sendHeight, 150);
-        setTimeout(sendHeight, 300);
+        setTimeout(sendHeight, 500);  // Tunggu 50ms (agar DOM update dulu)
+        setTimeout(sendHeight, 1000);
+        setTimeout(sendHeight, 2000);
     }
 
     // --- UI ACTIONS ---
