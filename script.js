@@ -261,23 +261,38 @@ function selectRounding(val) {
 function roundUp05(num) { return Math.ceil(num * 2) / 2; }
 
 function saveToImage() {
-    const btn = document.getElementById('saveImageBtn');
+    // Tombol Save
+    const saveBtn = document.getElementById('saveImageBtn');
+    // Tombol Logout (menggunakan class)
+    const logoutBtn = document.querySelector('.jastip-logout-button'); 
     const card = document.getElementById('resultCard');
-    btn.style.display = 'none';
+    
+    // 1. SEMBUNYIKAN TOMBOL SEBELUM CAPTURE
+    saveBtn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'none'; 
+    
     const prodName = document.getElementById('productNameInput').value.trim().replace(/\s+/g, '_');
     const now = new Date();
     const timestamp = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
     let fileName = 'Jastip-' + timestamp + '.png';
     if(prodName) fileName = 'Jastip-' + prodName + '-' + timestamp + '.png';
+    
+    // Pastikan Log Out button tetap disembunyikan saat capture
     html2canvas(card, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
         const link = document.createElement('a');
         link.download = fileName;
         link.href = canvas.toDataURL('image/png');
         link.click();
-        btn.style.display = 'flex';
+        
+        // 2. TAMPILKAN KEMBALI TOMBOL SETELAH CAPTURE
+        saveBtn.style.display = 'flex';
+        if (logoutBtn) logoutBtn.style.display = 'flex'; 
     }).catch(err => {
         alert('Gagal menyimpan gambar.');
-        btn.style.display = 'flex';
+        
+        // 3. TAMPILKAN KEMBALI JIKA ERROR
+        saveBtn.style.display = 'flex';
+        if (logoutBtn) logoutBtn.style.display = 'flex';
     });
 }
 
@@ -285,6 +300,10 @@ function calculateJastip() {
     document.getElementById('resultCard').style.display = 'block';
     document.getElementById('modalInfoBox').style.display = 'block';
     document.getElementById('saveImageBtn').style.display = 'flex';
+    
+    // Pastikan tombol logout juga terlihat setelah kalkulasi berhasil
+    const logoutBtn = document.querySelector('.jastip-logout-button');
+    if (logoutBtn) logoutBtn.style.display = 'flex';
     
     const now = new Date();
     const timeStr = String(now.getDate()).padStart(2,'0') + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + now.getFullYear() + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
