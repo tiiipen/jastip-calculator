@@ -133,6 +133,8 @@
     #jastip-app .action-button:hover, #jastip-app .save-button:hover { background-color: #45a049; }
     #jastip-app .action-button.error-state { background-color: #d32f2f !important; cursor: not-allowed; }
     #jastip-app .save-button { display: none; margin-top: 15px; }
+    #jastip-app .jastip-logout-button { width: 100%; padding: 12px; background-color: #222; color: white; font-size: 1.1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; margin-top: 15px; display: flex; align-items: center; justify-content: center; }
+    #jastip-app .jastip-logout-button:hover { background-color: #444; }
     
     #jastip-app hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
     #jastip-app .dashed-divider { border: 0; border-top: 1px dashed #ddd; margin: 15px 0 10px 0; width: 100%; display: block; }
@@ -251,11 +253,7 @@
 </div>
 
 <div id="main-app">
-    
-    <div style="text-align: center; padding-top: 15px;">
-        <button onclick="logout()" style="background: #000000; border: 1px solid #333; color: #ffffff; padding: 10px 30px; border-radius: 6px; cursor: pointer; font-size: 12px;">Log Out</button> 
-    </div>
-
+  
     <div id="jastip-app">
         <h2>Jastip Calculator</h2>
         <p class="version-tag">Versi 2.1.12 by Steven Alexander</p>
@@ -500,7 +498,7 @@
             <div class="output-card" id="resultCard">
                 <div id="productNameOutput" class="product-name-output"></div>
                 <div id="generatedTimestamp" class="generated-timestamp"></div>
-
+        
                 <div class="price-header">
                     <span id="sellingPriceLabel">Harga Jual Minimal</span>
                     <strong id="minSellingPriceOutput">Rp 0</strong>
@@ -599,9 +597,10 @@
                 </div>
                 
                 <button id="saveImageBtn" class="save-button">Save to Gallery</button>
+                <button onclick="logout()" class="jastip-logout-button">Log Out</button>
             </div>
         </div>
-    </div>
+  
 </div>
 
 <script src="script.js"></script>
