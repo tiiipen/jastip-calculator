@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // =========================================================================
-// --- LOCK SCREEN FUNCTIONS ---
+// --- LOCK SCREEN FUNCTIONS (DENGAN LOGIC RESIZE LOCK SCREEN) ---
 // =========================================================================
 async function checkCredentials() {
     let phone = document.getElementById("phoneInput").value.trim();
@@ -88,6 +88,10 @@ async function checkCredentials() {
         const card = document.querySelector('.login-card');
         card.style.transform = "translateX(5px)";
         setTimeout(() => card.style.transform = "translateX(0)", 100);
+        
+        // --- PERBAIKAN: Panggil resize saat error login muncul ---
+        triggerResizeSequence(); 
+        
     } finally {
         btn.innerText = "Masuk Aplikasi";
         btn.disabled = false;
@@ -98,7 +102,7 @@ function unlockApp() {
     document.getElementById("lock-app").style.display = "none";
     document.getElementById("main-app").style.display = "block";
     
-    // Important: Recalculate height because elements are now visible
+    // Panggil resize untuk Kalkulator (tinggi penuh)
     triggerResizeSequence();
 }
 
@@ -112,17 +116,31 @@ function handleEnter(e) {
 }
 
 // =========================================================================
-// --- JASTIP APP FUNCTIONS ---
+// --- JASTIP APP FUNCTIONS (DENGAN LOGIC RESIZE LOCK SCREEN) ---
 // =========================================================================
+
 function getAccurateHeight() {
+    const lockApp = document.getElementById('lock-app');
+    
+    // Logika 1: Jika Lock Screen sedang terlihat
+    if (lockApp && lockApp.style.display !== 'none') {
+        const loginCard = document.querySelector('.login-card');
+        // Tinggi Lock Screen = Tinggi Card Login + buffer (untuk error area)
+        return loginCard ? loginCard.offsetHeight + 100 : document.body.scrollHeight;
+    }
+
+    // Logika 2: Untuk Jastip App
     const container = document.getElementById('jastip-app'); 
-    if(container) return container.offsetHeight + 60; // Extra padding for logout button area
+    // Tinggi Kalkulator = Tinggi container + buffer (untuk tombol logout)
+    if(container) return container.offsetHeight + 60; 
     return document.body.scrollHeight + 30;
 }
+
 function sendHeight() {
     const h = getAccurateHeight();
     window.parent.postMessage({ height: h, frameId: FRAME_ID }, '*');
 }
+
 function triggerResizeSequence() {
     sendHeight();
     setTimeout(sendHeight, 20); setTimeout(sendHeight, 50); setTimeout(sendHeight, 100); setTimeout(sendHeight, 300); setTimeout(sendHeight, 500); 
@@ -586,10 +604,12 @@ function calculateJastip() {
         calcBtn.textContent = "ERROR! Total Profit Margin < 0";
         calcBtn.classList.add('error-state');
         saveBtn.style.display = 'none'; 
+        if (logoutBtn) logoutBtn.style.display = 'none';
     } else {
         calcBtn.textContent = "Kalkulasi";
         calcBtn.classList.remove('error-state');
         saveBtn.style.display = 'flex'; 
+        if (logoutBtn) logoutBtn.style.display = 'flex';
     }
     triggerResizeSequence(); 
 }
