@@ -23,10 +23,12 @@
     }
 
     #lock-app .login-card {
-        background: white; width: 100%; max-width: 380px;
+        background: white; 
+        width: 100%; 
+        max-width: 380px;
         padding: 40px 30px; 
         text-align: center;
-        border: 1px solid #eee;
+        /* border: 1px solid #eee; */
         /* box-shadow: 0 10px 40px rgba(0,0,0,0.08); */
         /* border-radius: 20px; */
     }
