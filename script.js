@@ -114,6 +114,11 @@ function handleEnter(e) {
 // =========================================================================
 // --- JASTIP APP FUNCTIONS ---
 // =========================================================================
+
+function getLogoutButton() {
+    return document.querySelector('.jastip-logout-button');
+}
+
 function getAccurateHeight() {
     const container = document.getElementById('jastip-app'); 
     if(container) return container.offsetHeight + 60; // Extra padding for logout button area
@@ -262,22 +267,34 @@ function roundUp05(num) { return Math.ceil(num * 2) / 2; }
 
 function saveToImage() {
     const btn = document.getElementById('saveImageBtn');
+    const logoutBtn = getLogoutButton(); // Ambil tombol logout
     const card = document.getElementById('resultCard');
+    
+    // 1. Sembunyikan tombol Save dan Logout
     btn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'none'; 
+    
     const prodName = document.getElementById('productNameInput').value.trim().replace(/\s+/g, '_');
     const now = new Date();
     const timestamp = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
     let fileName = 'Jastip-' + timestamp + '.png';
     if(prodName) fileName = 'Jastip-' + prodName + '-' + timestamp + '.png';
+    
     html2canvas(card, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
         const link = document.createElement('a');
         link.download = fileName;
         link.href = canvas.toDataURL('image/png');
         link.click();
+        
+        // 2. Tampilkan kembali tombol Save dan Logout
         btn.style.display = 'flex';
+        if (logoutBtn) logoutBtn.style.display = 'flex';
     }).catch(err => {
         alert('Gagal menyimpan gambar.');
+        
+        // 3. Tampilkan kembali jika terjadi error
         btn.style.display = 'flex';
+        if (logoutBtn) logoutBtn.style.display = 'flex';
     });
 }
 
@@ -285,6 +302,10 @@ function calculateJastip() {
     document.getElementById('resultCard').style.display = 'block';
     document.getElementById('modalInfoBox').style.display = 'block';
     document.getElementById('saveImageBtn').style.display = 'flex';
+    
+    // Pastikan tombol logout juga terlihat setelah kalkulasi berhasil
+    const logoutBtn = getLogoutButton();
+    if (logoutBtn) logoutBtn.style.display = 'flex';
     
     const now = new Date();
     const timeStr = String(now.getDate()).padStart(2,'0') + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + now.getFullYear() + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
@@ -574,5 +595,3 @@ function calculateJastip() {
     }
     triggerResizeSequence(); 
 }
-
-
