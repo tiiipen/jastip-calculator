@@ -2,9 +2,14 @@
     /* --- GLOBAL RESET (Diambil dari Kalkulator) --- */
     /* ========================================================================= */
     html, body { 
-        margin: 0; padding: 0; width: 100%; height: auto; min-height: 100%; 
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-        background-color: #f4f6f8; 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: auto; 
+    min-height: 100%; 
+    background-color: transparent;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+    overflow-x: hidden; 
     }
 
     /* ========================================================================= */
