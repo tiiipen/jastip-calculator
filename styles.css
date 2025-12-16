@@ -1,301 +1,709 @@
-    /* ========================================================================= */
-    /* --- GLOBAL RESET (Diambil dari Kalkulator) --- */
-    /* ========================================================================= */
-    html, body { 
-        margin: 0; 
-        padding: 0; 
-        width: 100%; 
-        height: auto; 
-        min-height: 100%; 
-        background-color: transparent;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-        overflow-x: hidden; 
-    }
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
-    }
-    input[type=number] { 
-        -moz-appearance: textfield; 
-    }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  background-color: transparent;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 
-    /* ========================================================================= */
-    /* --- CSS LOCK ACCESS (Dibungkus di dalam #lock-app) --- */
-    /* ========================================================================= */
-    #lock-app { 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%;
-        background: transparent; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center;
-        z-index: 9999;
-    }
-    
-    #lock-app .login-card {
-        background: white; 
-        width: 100%; 
-        max-width: 380px;
-        padding: 40px 30px; 
-        text-align: center;
-        /* border: 1px solid #eee; */
-        /* box-shadow: 0 10px 40px rgba(0,0,0,0.08); */
-        /* border-radius: 20px; */
-    }
-    
-    #lock-app .icon-lock {
-        width: 60px; 
-        height: 60px; 
-        background: #e8f7f0; 
-        color: #00a76f;
-        border-radius: 50%; 
-        display: inline-flex; 
-        align-items: center; 
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-    #lock-app h3 { 
-        margin: 0 0 10px; 
-        color: #333; 
-        font-weight: 700; 
-    }
-    #lock-app p.desc { 
-        color: #888; 
-        font-size: 14px; 
-        margin-bottom: 25px; 
-    }
-    #lock-app .input-group { 
-        text-align: left; 
-        margin-bottom: 15px; 
-    }
-    #lock-app .input-group label { 
-        font-size: 12px; 
-        font-weight: 600; 
-        color: #666; 
-        display: block; 
-        margin-bottom: 5px;
-    }
-    
-    #lock-app input[type="tel"], 
-    #lock-app input[type="email"] {
-        width: 100%; 
-        padding: 14px 15px; 
-        font-size: 16px;
-        border: 2px solid #f0f0f0; 
-        border-radius: 12px; 
-        outline: none;
-        background: #fafafa; 
-        box-sizing: border-box; 
-        transition: 0.3s;
-    }
-    #lock-app input[type="tel"]:focus, 
-    #lock-app input[type="email"]:focus { 
-        border-color: #00a76f; 
-        background: #fff; 
-    }
-    #lock-app button.btn-access {
-        width: 100%; 
-        padding: 14px; 
-        font-size: 16px; 
-        font-weight: 600;
-        color: white; 
-        background-color: #00a76f; 
-        border: none; 
-        border-radius: 12px;
-        cursor: pointer; 
-        transition: 0.2s; 
-        box-sizing: border-box; 
-        margin-top: 10px;
-    }
-    #lock-app button.btn-access:hover { 
-        background-color: #008f5e; 
-    }
-    #lock-app button.btn-access:disabled { 
-        background-color: #ccc; 
-        cursor: not-allowed; 
-    }
-    #lock-app #actionArea { 
-        margin-top: 20px; 
-        display: none; 
-    }
-    #lock-app .error-text { 
-        color: #d93025; 
-        font-size: 14px; 
-        font-weight: bold; 
-        margin-bottom: 15px; 
-        display: block;
-    }
-    #lock-app .btn-buy {
-        display: block; 
-        width: 100%; 
-        padding: 14px; 
-        font-size: 16px; 
-        font-weight: 600;
-        border-radius: 12px; 
-        margin-bottom: 15px; 
-        background: #222; 
-        color: white;
-        text-decoration: none; 
-        box-sizing: border-box; 
-        text-align: center;
-        transition: background 0.2s;
-    }
-    #lock-app .btn-buy:hover { 
-        background: #444; 
-    }
-    #lock-app .link-cs { 
-        color: #666; 
-        font-size: 14px; 
-        text-decoration: none; 
-        font-weight: 500; 
-    }
-    #lock-app .link-cs:hover { 
-        text-decoration: underline; 
-        color: #00a76f; 
-    }
-    
-    #main-app { 
-        display: none; 
-    }
+#lock-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 
+#lock-app .login-card {
+  background: white;
+  width: 100%;
+  max-width: 380px;
+  padding: 40px 30px;
+  text-align: center;
+}
 
-    /* ========================================================================= */
-    /* --- CSS JASTIP APP (Scoped under #jastip-app) --- */
-    /* ========================================================================= */
-    #jastip-app {
-        font-family: Arial, sans-serif;
-        color: #333;
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 450px;
-        margin: 0 auto;
-        display: block;
-        position: relative;
-        padding: 20px;
-        padding-bottom: 15px;
-        background-color: #ffffff;
-    }
+#lock-app .icon-lock {
+  width: 60px;
+  height: 60px;
+  background: #e8f7f0;
+  color: #00a76f;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+#lock-app h3 {
+  margin: 0 0 10px;
+  color: #333;
+  font-weight: 700;
+}
+#lock-app p.desc {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+#lock-app .input-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+#lock-app .input-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  display: block;
+  margin-bottom: 5px;
+}
 
-    #jastip-app * { box-sizing: border-box; }
+#lock-app input[type="tel"],
+#lock-app input[type="email"] {
+  width: 100%;
+  padding: 14px 15px;
+  font-size: 16px;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  outline: none;
+  background: #fafafa;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+#lock-app input[type="tel"]:focus,
+#lock-app input[type="email"]:focus {
+  border-color: #00a76f;
+  background: #fff;
+}
+#lock-app button.btn-access {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #00a76f;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+#lock-app button.btn-access:hover {
+  background-color: #008f5e;
+}
+#lock-app button.btn-access:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+#lock-app #actionArea {
+  margin-top: 20px;
+  display: none;
+}
+#lock-app .error-text {
+  color: #d93025;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: block;
+}
+#lock-app .btn-buy {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  background: #222;
+  color: white;
+  text-decoration: none;
+  box-sizing: border-box;
+  text-align: center;
+  transition: background 0.2s;
+}
+#lock-app .btn-buy:hover {
+  background: #444;
+}
+#lock-app .link-cs {
+  color: #666;
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: 500;
+}
+#lock-app .link-cs:hover {
+  text-decoration: underline;
+  color: #00a76f;
+}
 
-    #jastip-app input[type=number]::-webkit-inner-spin-button, 
-    #jastip-app input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    #jastip-app input[type=number] { -moz-appearance: textfield; }
-    
-    #jastip-app p:last-of-type { margin-bottom: 0 !important; padding-bottom: 0 !important; }
-    
-    #jastip-app .version-tag { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: -10px; margin-bottom: 20px; }
-    #jastip-app h2 { color: #333; text-align: center; margin-bottom: 20px; margin-top: 10px; }
-    
-    #jastip-app .input-group { margin-bottom: 20px; text-align: left; }
-    #jastip-app .input-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #000000; font-size: 1em; }
-    
-    #jastip-app .input-row { display: flex; align-items: center; gap: 10px; }
-    
-    #jastip-app .calculator-input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1em; width: 100%; background: #fff; color: #000; }
-    #jastip-app .percentage-input { width: 80px; text-align: right; font-weight: bold; }
-    
-    #jastip-app #methodHandCarry .input-group { margin-bottom: 10px; }
-    #jastip-app #methodHandCarry .checkbox-wrapper { margin-top: 5px; }
-    
-    #jastip-app .slider-input { flex-grow: 1; height: 10px; -webkit-appearance: none; background: #e0e0e0; border-radius: 5px; cursor: pointer; padding: 0; margin: 0; }
-    #jastip-app .slider-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #4CAF50; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
-    
-    #jastip-app .slider-min-max { font-size: 0.8em; color: #999; margin-top: 5px; text-align: left; margin-bottom: 5px;}
-    
-    #jastip-app .action-button, 
-    #jastip-app .save-button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; font-size: 1.1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; margin-top: 10px; display: flex; align-items: center; justify-content: center; }
-    #jastip-app .action-button:hover, #jastip-app .save-button:hover { background-color: #45a049; }
-    #jastip-app .action-button.error-state { background-color: #d32f2f !important; cursor: not-allowed; }
-    #jastip-app .save-button { display: none; margin-top: 15px; }
-    #jastip-app .jastip-logout-button { width: 100%; padding: 12px; background-color: #222; color: white; font-size: 1.1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; margin-top: 15px; display: flex; align-items: center; justify-content: center; }
-    #jastip-app .jastip-logout-button:hover { background-color: #444; }
-    
-    #jastip-app hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
-    #jastip-app .dashed-divider { border: 0; border-top: 1px dashed #ddd; margin: 15px 0 10px 0; width: 100%; display: block; }
-    
-    #jastip-app .shipping-options { display: flex; gap: 10px; margin-bottom: 15px; }
-    #jastip-app .shipping-option { flex: 1; text-align: center; padding: 10px 5px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.9em; background: #fff; transition: all 0.2s; font-weight: bold; color: #777; }
-    #jastip-app .shipping-option.active { background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3); }
-    
-    #jastip-app .method-container { display: none; padding: 15px; background: #fcfcfc; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
-    #jastip-app .method-container.active { display: block; animation: jastipFadeIn 0.3s; }
-    
-    #jastip-app .toggle-wrapper { display: flex; justify-content: flex-end; margin-bottom: 5px; align-items: center; }
-    #jastip-app .toggle-switch { display: flex; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
-    #jastip-app .toggle-btn { padding: 4px 10px; font-size: 0.8em; cursor: pointer; background: #f0f0f0; min-width: 40px; text-align: center; color: #333; }
-    #jastip-app .toggle-btn.active { background: #4CAF50; color: white; }
-    
-    #jastip-app .dimension-group { display: flex; gap: 8px; align-items: center; }
-    #jastip-app .dimension-input { width: 100%; text-align: center; }
-    #jastip-app .dimension-separator { font-weight: bold; color: #999; }
-    
-    #jastip-app .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; }
-    #jastip-app .checkbox-wrapper.no-border { margin-top: 8px; padding-top: 0; border-top: none; }
-    
-    #jastip-app .custom-checkbox { width: 18px; height: 18px; border: 2px solid #4CAF50; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0; }
-    #jastip-app .custom-checkbox.checked { background: #4CAF50; }
-    #jastip-app .custom-checkbox.checked::after { content: '✔'; color: white; font-size: 12px; }
-    #jastip-app .checkbox-label { font-size: 0.9em; color: #555; cursor: pointer; user-select: none; font-weight: normal; }
-    
-    #jastip-app .detailed-breakdown { margin-top: 25px; padding: 0; background: transparent; border: none; }
-    #jastip-app .output-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: none; text-align: left; }
-    
-    #jastip-app .product-name-output { font-size: 1.1em; font-weight: bold; color: #333; text-align: center; margin-bottom: 5px; display: none; }
-    #jastip-app .generated-timestamp { font-size: 0.85em; color: #888; text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; display: none; }
-    
-    #jastip-app .price-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    #jastip-app .price-header span { font-size: 1em; color: #333; font-weight: bold; }
-    #jastip-app .price-header strong { font-size: 1em; color: #4CAF50; font-weight: bold; }
-    
-    #jastip-app .separator-green { border-bottom: 2px solid #4CAF50; margin-bottom: 15px; }
-    #jastip-app .separator-dashed { border-bottom: 1px dashed #ddd; margin: 10px 0; }
-    #jastip-app .separator-solid { border-bottom: 2px solid #f0f0f0; margin: 15px 0; }
-    
-    #jastip-app .detail-row { display: flex; justify-content: space-between; font-size: 0.95em; padding: 5px 0; color: #333333; }
-    #jastip-app .detail-row strong { color: #000000; }
-    
-    #jastip-app .profit-row { color: #333; padding-top: 5px; display: flex; justify-content: space-between; align-items: center; }
-    #jastip-app .profit-row span { font-size: 1em; font-weight: bold; color: #333; }
-    #jastip-app .profit-row strong { color: #FF9800; font-size: 1em; font-weight: bold; }
-    
-    #jastip-app .info-box { display: none; margin-top: 20px; padding: 12px; background-color: #f5f5f5; border: 1px solid #eee; border-radius: 6px; font-size: 0.9em; color: #333333; }
-    #jastip-app .modal-info-box { display: none; margin-top: 20px; padding: 12px; background-color: #f5f5f5; border: 1px solid #eee; border-radius: 6px; font-size: 0.9em; color: #333333; }
-    
-    #jastip-app .info-box-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 10px; color: #000; font-size: 1.12em; display: block; }
-    #jastip-app .info-row { margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; }
-    #jastip-app .info-row .row-label { color: #333333; flex: 1; text-align: left; }
-    #jastip-app .info-row .row-value { color: #000000; font-weight: bold; flex: 1; text-align: right; }
-    
-    #jastip-app .info-stacked-row { margin-bottom: 10px; }
-    #jastip-app .info-stacked-row .stack-label { display: block; color: #333333; margin-bottom: 2px; text-align: left; }
-    
-    #jastip-app .flex-split { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
-    #jastip-app .flex-split .left-text { color: #333333; font-weight: normal; text-align: left; flex: 1.5; }
-    #jastip-app .flex-split .right-text { color: #000000; font-weight: bold; text-align: right; flex: 1; }
-    
-    #jastip-app .info-separator { border-top: 1px dashed #ccc; margin: 10px 0; }
-    
-    #jastip-app .total-row { margin-top: 5px; }
-    #jastip-app .total-row .total-label { display: block; font-weight: bold; color: #333333; margin-bottom: 2px; text-align: left; }
-    #jastip-app .total-row .total-calc { display: flex; justify-content: space-between; }
-    #jastip-app .total-row .calc-left { color: #333333; font-weight: normal; }
-    #jastip-app .total-row .calc-right { color: #000000; font-weight: bold; }
-    
-    #jastip-app .modal-info-box .detail-row span { color: #333 !important; }
-    #jastip-app .modal-info-box .detail-row strong { color: #000 !important; }
-    
-    #jastip-app .rounding-options { display: flex; gap: 10px; margin-bottom: 15px; }
-    #jastip-app .rounding-option { flex: 1; text-align: center; padding: 10px 5px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.9em; background: #fff; transition: all 0.2s; font-weight: bold; color: #777; }
-    #jastip-app .rounding-option.active { background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3); }
-    
-    #jastip-app .radio-group { margin-top: 0px; display: none; }
-    #jastip-app .radio-group.show { display: block; }
-    #jastip-app .hidden { display: none !important; }
-    
-    @keyframes jastipFadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+#main-app {
+  display: none;
+}
+
+#jastip-app {
+  font-family: Arial, sans-serif;
+  color: #333;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+  display: block;
+  position: relative;
+  padding: 20px;
+  padding-bottom: 15px;
+  background-color: #ffffff;
+}
+
+#jastip-app * {
+  box-sizing: border-box;
+}
+
+#jastip-app input[type="number"]::-webkit-inner-spin-button,
+#jastip-app input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#jastip-app input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+#jastip-app p:last-of-type {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#jastip-app .version-tag {
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.9em;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+#jastip-app h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+#jastip-app .input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+#jastip-app .input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #000000;
+  font-size: 1em;
+}
+
+#jastip-app .input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#jastip-app .calculator-input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1em;
+  width: 100%;
+  background: #fff;
+  color: #000;
+}
+#jastip-app .percentage-input {
+  width: 80px;
+  text-align: right;
+  font-weight: bold;
+}
+
+#jastip-app #methodHandCarry .input-group {
+  margin-bottom: 10px;
+}
+#jastip-app #methodHandCarry .checkbox-wrapper {
+  margin-top: 5px;
+}
+
+#jastip-app .slider-input {
+  flex-grow: 1;
+  height: 10px;
+  -webkit-appearance: none;
+  background: #e0e0e0;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+#jastip-app .slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #4caf50;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+#jastip-app .slider-min-max {
+  font-size: 0.8em;
+  color: #999;
+  margin-top: 5px;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+#jastip-app .action-button,
+#jastip-app .save-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#jastip-app .action-button:hover,
+#jastip-app .save-button:hover {
+  background-color: #45a049;
+}
+#jastip-app .action-button.error-state {
+  background-color: #d32f2f !important;
+  cursor: not-allowed;
+}
+#jastip-app .save-button {
+  display: none;
+  margin-top: 15px;
+}
+#jastip-app .jastip-logout-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #222;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#jastip-app .jastip-logout-button:hover {
+  background-color: #444;
+}
+
+#jastip-app hr {
+  border: 0;
+  height: 1px;
+  background: #eee;
+  margin: 20px 0;
+}
+#jastip-app .dashed-divider {
+  border: 0;
+  border-top: 1px dashed #ddd;
+  margin: 15px 0 10px 0;
+  width: 100%;
+  display: block;
+}
+
+#jastip-app .shipping-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+#jastip-app .shipping-option {
+  flex: 1;
+  text-align: center;
+  padding: 10px 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  background: #fff;
+  transition: all 0.2s;
+  font-weight: bold;
+  color: #777;
+}
+#jastip-app .shipping-option.active {
+  background-color: #4caf50;
+  color: white;
+  border-color: #4caf50;
+  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+}
+
+#jastip-app .method-container {
+  display: none;
+  padding: 15px;
+  background: #fcfcfc;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+#jastip-app .method-container.active {
+  display: block;
+  animation: jastipFadeIn 0.3s;
+}
+
+#jastip-app .toggle-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 5px;
+  align-items: center;
+}
+#jastip-app .toggle-switch {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#jastip-app .toggle-btn {
+  padding: 4px 10px;
+  font-size: 0.8em;
+  cursor: pointer;
+  background: #f0f0f0;
+  min-width: 40px;
+  text-align: center;
+  color: #333;
+}
+#jastip-app .toggle-btn.active {
+  background: #4caf50;
+  color: white;
+}
+
+#jastip-app .dimension-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#jastip-app .dimension-input {
+  width: 100%;
+  text-align: center;
+}
+#jastip-app .dimension-separator {
+  font-weight: bold;
+  color: #999;
+}
+
+#jastip-app .checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+}
+#jastip-app .checkbox-wrapper.no-border {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
+}
+
+#jastip-app .custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #4caf50;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  flex-shrink: 0;
+}
+#jastip-app .custom-checkbox.checked {
+  background: #4caf50;
+}
+#jastip-app .custom-checkbox.checked::after {
+  content: "✔";
+  color: white;
+  font-size: 12px;
+}
+#jastip-app .checkbox-label {
+  font-size: 0.9em;
+  color: #555;
+  cursor: pointer;
+  user-select: none;
+  font-weight: normal;
+}
+
+#jastip-app .detailed-breakdown {
+  margin-top: 25px;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+#jastip-app .output-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: none;
+  text-align: left;
+}
+
+#jastip-app .product-name-output {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 5px;
+  display: none;
+}
+#jastip-app .generated-timestamp {
+  font-size: 0.85em;
+  color: #888;
+  text-align: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  display: none;
+}
+
+#jastip-app .price-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+#jastip-app .price-header span {
+  font-size: 1em;
+  color: #333;
+  font-weight: bold;
+}
+#jastip-app .price-header strong {
+  font-size: 1em;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+#jastip-app .separator-green {
+  border-bottom: 2px solid #4caf50;
+  margin-bottom: 15px;
+}
+#jastip-app .separator-dashed {
+  border-bottom: 1px dashed #ddd;
+  margin: 10px 0;
+}
+#jastip-app .separator-solid {
+  border-bottom: 2px solid #f0f0f0;
+  margin: 15px 0;
+}
+
+#jastip-app .detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95em;
+  padding: 5px 0;
+  color: #333333;
+}
+#jastip-app .detail-row strong {
+  color: #000000;
+}
+
+#jastip-app .profit-row {
+  color: #333;
+  padding-top: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#jastip-app .profit-row span {
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+}
+#jastip-app .profit-row strong {
+  color: #ff9800;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+#jastip-app .info-box {
+  display: none;
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #333333;
+}
+#jastip-app .modal-info-box {
+  display: none;
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #333333;
+}
+
+#jastip-app .info-box-title {
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  color: #000;
+  font-size: 1.12em;
+  display: block;
+}
+#jastip-app .info-row {
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+#jastip-app .info-row .row-label {
+  color: #333333;
+  flex: 1;
+  text-align: left;
+}
+#jastip-app .info-row .row-value {
+  color: #000000;
+  font-weight: bold;
+  flex: 1;
+  text-align: right;
+}
+
+#jastip-app .info-stacked-row {
+  margin-bottom: 10px;
+}
+#jastip-app .info-stacked-row .stack-label {
+  display: block;
+  color: #333333;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+#jastip-app .flex-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+#jastip-app .flex-split .left-text {
+  color: #333333;
+  font-weight: normal;
+  text-align: left;
+  flex: 1.5;
+}
+#jastip-app .flex-split .right-text {
+  color: #000000;
+  font-weight: bold;
+  text-align: right;
+  flex: 1;
+}
+
+#jastip-app .info-separator {
+  border-top: 1px dashed #ccc;
+  margin: 10px 0;
+}
+
+#jastip-app .total-row {
+  margin-top: 5px;
+}
+#jastip-app .total-row .total-label {
+  display: block;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 2px;
+  text-align: left;
+}
+#jastip-app .total-row .total-calc {
+  display: flex;
+  justify-content: space-between;
+}
+#jastip-app .total-row .calc-left {
+  color: #333333;
+  font-weight: normal;
+}
+#jastip-app .total-row .calc-right {
+  color: #000000;
+  font-weight: bold;
+}
+
+#jastip-app .modal-info-box .detail-row span {
+  color: #333 !important;
+}
+#jastip-app .modal-info-box .detail-row strong {
+  color: #000 !important;
+}
+
+#jastip-app .rounding-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+#jastip-app .rounding-option {
+  flex: 1;
+  text-align: center;
+  padding: 10px 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  background: #fff;
+  transition: all 0.2s;
+  font-weight: bold;
+  color: #777;
+}
+#jastip-app .rounding-option.active {
+  background-color: #4caf50;
+  color: white;
+  border-color: #4caf50;
+  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+}
+
+#jastip-app .radio-group {
+  margin-top: 0px;
+  display: none;
+}
+#jastip-app .radio-group.show {
+  display: block;
+}
+#jastip-app .hidden {
+  display: none !important;
+}
+
+@keyframes jastipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
